@@ -3,8 +3,8 @@
 Default parameters are used for various aspects of the benchmark, e.g., the batch sizes, learning rates. These default parameters can be overriden using the following syntaxes for both CLI and API uses.
 
 ```bash
-thunder benchmark hiboub bach knn --task.pre_comp_emb_batch_size 123 \
-                                  --task.k_vals "[1, 2, 3]"
+thunder benchmark keep bach knn --task.pre_comp_emb_batch_size 123 \
+                                --task.k_vals "[1, 2, 3]"
 ```
 
 ```python

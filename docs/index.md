@@ -76,13 +76,13 @@ pip install . # install the package
 |SegPath Epithelial  | segp-ep    | Segm.    | 2           | Multi    | 256x256     | 40x          | 238,581    |
 |SegPath Lymphocytes | segp-ly    | Segm.    | 2           | Multi    | 256x256     | 40x          | 110,457    |
 
-## Available foundation models
+## Supported foundation models
 |Name        |Short name| Vision arch. | Params. | Training method | VLM | Pathology |
 | :--------- | :------: | :----------: | :-----: | :-------------: | :-: | :-------: |
 |HIBOU-B     | hiboub   | ViT-B/14     | 86M     | DINOv2          |     |x          |
 |HIBOU-L     | hiboul   | ViT-L/14     | 307M    | DINOv2          |     |x          |
-|H-OPTIMUS-0 | hopt0    | ViT-G/14     | 1.1B    | DINOv2          |     |x          |
-|H-OPTIMUS-1 | hopt1    | ViT-G/14     | 1.1B    | DINOv2          |     |x          |
+|H-OPTIMUS-0 | hoptimus0    | ViT-G/14     | 1.1B    | DINOv2          |     |x          |
+|H-OPTIMUS-1 | hoptimus1    | ViT-G/14     | 1.1B    | DINOv2          |     |x          |
 |MIDNIGHT    | midnight | ViT-G/14     | 1.1B    | DINOv2          |     |x          |
 |PHIKON      | phikon   | ViT-B/16     | 86M     | iBOT            |     |x          |
 |PHIKON2     | phikon2  | ViT-L/16     | 307M    | DINOv2          |     |x          |
@@ -95,10 +95,10 @@ pip install . # install the package
 |KEEP        | keep     | ViT-L/16     | 307M    | CLIP            |x    |x          |
 |MUSK        | musk     | V-FFN        | 202M    | CoCa, BEiT-3    |x    |x          |
 |PLIP        | plip     | ViT-B/32     | 86M     | CLIP            |x    |x          |
-|QUILTNET    | quilt    | ViT-B/32     | 86M     | CLIP            |x    |x          |
-|DINOv2-B    | dinob    | ViT-B/14     | 86M     | DINOv2          |     |           |
-|DINOv2-L    | dinol    | ViTL/14      | 307M    | DINOv2          |     |           |
+|QUILTNET    | quiltnetb32    | ViT-B/32     | 86M     | CLIP            |x    |x          |
+|DINOv2-B    | dinov2base    | ViT-B/14     | 86M     | DINOv2          |     |           |
+|DINOv2-L    | dinov2large    | ViTL/14      | 307M    | DINOv2          |     |           |
 |ViT-B/16    | vitb     | ViT-B/16     | 86M     | Imagenet        |     |           |
 |ViT-L/16    | vitl     | ViT-L/16     | 307M    | Imagenet        |     |           |
-|CLIP-B/32   | clipb    | ViT-B/32     | 86M     | CLIP            |x    |           |
-|CLIP-L/14   | clipl    | ViT-L/14     | 307M    | CLIP            |x    |           |
+|CLIP-B/32   | clipvitbasepatch32    | ViT-B/32     | 86M     | CLIP            |x    |           |
+|CLIP-L/14   | clipvitlargepatch14    | ViT-L/14     | 307M    | CLIP            |x    |           |
