@@ -1,6 +1,7 @@
 site_name: THUNDER
 repo_name: MICS-Lab/thunder
 site_url: https://mics-lab.github.io/thunder
+repo_url: https://github.com/MICS-Lab/thunder
 
 plugins:
   - mkdocstrings
