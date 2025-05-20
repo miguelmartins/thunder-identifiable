@@ -14,7 +14,7 @@ import torch.nn.functional as F
 import torchvision.transforms as T
 import wandb
 from omegaconf import DictConfig, OmegaConf
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader, Subset, ConcatDataset
 from tqdm import tqdm
 
 from ..models.adapters import get_model_lora_names, init_adapters
@@ -96,32 +96,46 @@ def transformation_invariance(
             "Lora can not be chosen for this task, 'adaptation' should be set to 'frozen'"
         )
     # ---------------------------------------------------------------------
-    # Loading data paths for training and validation
+    # Loading training and validation datasets
     # ---------------------------------------------------------------------
     data_paths = get_data(dataset_name, base_data_folder)
-    train_val_image_paths = data_paths["train"]["images"] + data_paths["val"]["images"]
-    train_val_label_paths = data_paths["train"]["labels"] + data_paths["val"]["labels"]
+
+    train_ds = PatchDataset(
+        data_paths["train"]["images"],
+        data_paths["train"]["labels"],
+        transform=T.ToTensor(),  # transformations handled manually later
+        task_type="linear_probing",
+        dataset_name=dataset_name,
+        base_data_folder=base_data_folder,
+        embeddings_folder=None,
+        image_pre_loading=image_pre_loading,
+        embedding_pre_loading=False,
+    )
+
+    val_ds = PatchDataset(
+        data_paths["val"]["images"],
+        data_paths["val"]["labels"],
+        transform=T.ToTensor(),  # transformations handled manually later
+        task_type="linear_probing",
+        dataset_name=dataset_name,
+        base_data_folder=base_data_folder,
+        embeddings_folder=None,
+        image_pre_loading=image_pre_loading,
+        embedding_pre_loading=False,
+    )
+
+    train_val_ds = ConcatDataset([train_ds, val_ds])
 
     # ---------------------------------------------------------------------
     # Selecting a random subset for evaluation
     # ---------------------------------------------------------------------
     subset_indices = random.sample(
-        range(len(train_val_image_paths)),
-        k=min(cfg.task.get("nb_images"), len(train_val_image_paths)),
+        range(len(train_val_ds)),
+        k=min(cfg.task.get("nb_images"), len(train_val_ds)),
     )
 
     subset_dataset = Subset(
-        PatchDataset(
-            train_val_image_paths,
-            train_val_label_paths,
-            transform=T.ToTensor(),  # transformations handled manually later
-            task_type="linear_probing",
-            dataset_name=dataset_name,
-            base_data_folder=base_data_folder,
-            embeddings_folder=None,
-            image_pre_loading=image_pre_loading,
-            embedding_pre_loading=False,
-        ),
+        train_val_ds,
         subset_indices,
     )
     generator = torch.Generator()
