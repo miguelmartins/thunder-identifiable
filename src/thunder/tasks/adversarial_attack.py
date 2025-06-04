@@ -32,7 +32,7 @@ def _pil_from_any(img):
     return img
 
 
-def adversarial_attack_linear(
+def adversarial_attack(
     cfg: DictConfig,
     dataset_name: str,
     model_name: str,

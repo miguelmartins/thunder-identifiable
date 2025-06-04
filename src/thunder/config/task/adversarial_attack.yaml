@@ -1,4 +1,4 @@
-type: adversarial_attack_linear
+type: adversarial_attack
 compatible_adaptation_types: ["frozen"]
 base_embeddings_folder: ${oc.env:THUNDER_BASE_DATA_FOLDER}/embeddings/
 pre_comp_emb_batch_size: 128

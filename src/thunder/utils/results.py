@@ -3,7 +3,7 @@ import os
 METRICS = ["accuracy", "balanced_accuracy", "f1", "jaccard", "roc_auc"]
 
 TASK2CATS = {
-    "adversarial_attack_linear": ["adversarial", "clean"],
+    "adversarial_attack": ["adversarial", "clean"],
     "simple_shot": ["1", "2", "4", "8", "16"],
     "image_retrieval": ["1", "3", "5", "10"],
 }
@@ -107,5 +107,5 @@ def gather_results():
     df.to_csv(os.path.join(results_dir, "results.csv"), index=False)
     print("Saved at:", os.path.join(results_dir, "results.csv"))
     print(
-        "The setting column corresponds to: (i) Adversarial/Clean for adversarial_attack_linear, (ii) nb shots for simple_shot, (iii) k for image_retrieval."
+        "The setting column corresponds to: (i) Adversarial/Clean for adversarial_attack, (ii) nb shots for simple_shot, (iii) k for image_retrieval."
     )
