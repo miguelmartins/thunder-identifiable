@@ -18,7 +18,8 @@ export THUNDER_BASE_DATA_FOLDER=/path/to/thunder_base_data_folder
 ```
 
 !!!important
-    Without this environment variable, the package will not work. The folder should be empty and the package will create the necessary subfolders.
+    Without this environment variable, the package will not work. The folder should be empty and the package will create the necessary subfolders. We will save datasets, foundation models, pre-computed embeddings and output files from ran tasks. Importantly, you will be able to find the output file for a task at the following location:
+    `$THUNDER_BASE_DATA_FOLDER/outputs/res/<dataset>/<model>/<task>/<adaptation_type>/outputs.json`
 
 ## CLI Usage
 

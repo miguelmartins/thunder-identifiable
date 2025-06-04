@@ -1,7 +1,7 @@
 
 # Tile-level Histopathology image Understanding benchmark
 
-<img src="docs/banner.svg" />
+<img src="docs/banner.png" />
 
 <div align="center">
 
@@ -19,7 +19,7 @@ We introduce **THUNDER**, a comprehensive benchmark designed to rigorously compa
 
 We propose a benchmark to compare and study foundation models across three axes: (i) downstream task performance, (ii) feature space comparisons, and (iii) uncertainty and robustness. Our current version integrates 23 foundation models, vision-only, vision-language, trained on pathology or natural images, on 16 datasets covering different magnifications and organs. THUNDER also supports the use of new user-defined models for direct comparisons.
 
-<img src="docs/overview.svg" />
+<img src="docs/overview.png" />
 
 
 ## Usage
