@@ -1,6 +1,7 @@
 import os
 
 import hydra
+import logging
 from omegaconf import DictConfig
 from typing import Callable
 
@@ -124,17 +125,17 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
     )
     image_pre_loading = cfg.data_loading.image_pre_loading
     embedding_pre_loading = cfg.data_loading.embedding_pre_loading
-    assert task_type in data_compatible_tasks, print(
+    assert task_type in data_compatible_tasks, (
         f"The chosen task ({task_type}) is not within the compatible task types for "
         f"the chosen dataset: {data_compatible_tasks}."
     )
-    assert adaptation_type in task_compatible_adaptation_types, print(
+    assert adaptation_type in task_compatible_adaptation_types, (
         f"The chosen adaptation type ({adaptation_type}) is not within the compatible "
         f"adaptation types for the chosen task: {task_compatible_adaptation_types}."
     )
-    assert not (image_pre_loading and embedding_pre_loading), print(
-        "We do not pre-load both images and embeddings."
-    )
+    assert not (
+        image_pre_loading and embedding_pre_loading
+    ), "We do not pre-load both images and embeddings."
 
     # W&B login
     wandb.login()
@@ -204,7 +205,7 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
                 model_cls,
             )
         else:
-            print(
+            logging.info(
                 f"Found already trained best model {os.path.join(ckpt_folder, 'best_model.pth')}. "
                 f"Not re-training."
             )
@@ -248,7 +249,7 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
         )
 
         if not os.path.exists(embeddings_folder):
-            print(
+            logging.info(
                 f"No pre-computed embeddings found for the (dataset, model) pair "
                 f"({dataset_name}, {model_name}). Computing them."
             )
@@ -269,7 +270,7 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
             )
 
         else:
-            print(
+            logging.info(
                 f"Pre-computed embeddings already found for the (dataset, model) pair "
                 f"({dataset_name}, {model_name}). Not re-computing them."
             )

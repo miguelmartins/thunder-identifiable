@@ -584,17 +584,17 @@ def create_splits_bach(base_folder: str, dataset_cfg: dict) -> None:
     bach_test_patients = get_bach_patients_set(df, bach_data_splits["test"]["images"])
 
     train_inter_test = bach_train_patients.intersection(bach_test_patients)
-    assert len(train_inter_test) == 0, print(
-        "There is patient leakage between train and test sets."
-    )
+    assert (
+        len(train_inter_test) == 0
+    ), "There is patient leakage between train and test sets."
     train_inter_val = bach_train_patients.intersection(bach_val_patients)
-    assert len(train_inter_val) == 0, print(
-        "There is patient leakage between train and val sets."
-    )
+    assert (
+        len(train_inter_val) == 0
+    ), "There is patient leakage between train and val sets."
     val_inter_test = bach_val_patients.intersection(bach_test_patients)
-    assert len(val_inter_test) == 0, print(
-        "There is patient leakage between val and test sets."
-    )
+    assert (
+        len(val_inter_test) == 0
+    ), "There is patient leakage between val and test sets."
 
     # Few-shot training data
     bach_data_splits = create_few_shot_training_data(bach_data_splits)

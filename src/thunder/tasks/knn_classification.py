@@ -1,4 +1,5 @@
 import json
+import logging
 import numpy as np
 import os
 
@@ -22,6 +23,7 @@ def knn(
     :param wandb_base_folder: w&b folder.
     """
     # Hyperparameter (k) search
+    logging.info("Hyperparameter (k) search")
     val_metrics, *_ = topk_retrieval(
         embs["train"],
         labels["train"],
@@ -44,6 +46,7 @@ def knn(
             best_k = k
 
     # knn test
+    logging.info("Test")
     test_metrics, *_ = topk_retrieval(
         embs["train"],
         labels["train"],

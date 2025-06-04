@@ -1,5 +1,6 @@
 from collections import defaultdict
 import json
+import logging
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -52,10 +53,10 @@ def topk_retrieval(
     queries = normalize(queries)
     assert np.allclose(
         np.linalg.norm(keys, axis=1, keepdims=True), np.ones((len(keys), 1))
-    ), print("keys matrix is not row-normalized.")
+    ), "keys matrix is not row-normalized."
     assert np.allclose(
         np.linalg.norm(queries, axis=1, keepdims=True), np.ones((len(queries), 1))
-    ), print("queries matrix is not row-normalized.")
+    ), "queries matrix is not row-normalized."
 
     preds_per_k = defaultdict(list)
     sorted_ids_per_k = defaultdict(list)
@@ -169,7 +170,13 @@ def image_retrieval(
 
         # Logging
         wandb.log({f"{wandb_base_folder}/image_retrieval_samples": fig})
-        fig.savefig(os.path.join(res_folder, "retrieval_samples.png"))
+        fig.savefig(
+            os.path.join(res_folder, "retrieval_samples.pdf"),
+            bbox_inches="tight",
+            pad_inches=0,
+        )
+    else:
+        logging.info("Retrieval samples are not visualized for path_camelyon.")
 
     # Logging
     for k in k_vals:

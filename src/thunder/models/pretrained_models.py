@@ -90,9 +90,9 @@ def get_model(model_cfg: dict, device: str):
     :param device: device to use (cpu, cuda).
     """
 
-    assert model_cfg.model_name in ModelConstants.PRETRAINED_MODELS.value, print(
-        f"{model_cfg.model_name} is not within the list of available pretrained models: {ModelConstants.PRETRAINED_MODELS.value}."
-    )
+    assert (
+        model_cfg.model_name in ModelConstants.PRETRAINED_MODELS.value
+    ), f"{model_cfg.model_name} is not within the list of available pretrained models: {ModelConstants.PRETRAINED_MODELS.value}."
 
     if model_cfg.type == "timm":
         timm_kwargs = OmegaConf.to_container(model_cfg.timm_kwargs, resolve=True)

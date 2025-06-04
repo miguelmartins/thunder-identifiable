@@ -3,6 +3,7 @@ import copy
 import json
 import numpy as np
 import os
+import logging
 from tqdm import tqdm
 
 from ..tasks.image_retrieval import topk_retrieval
@@ -41,6 +42,7 @@ def simple_shot(
         nb_shot_labels = nb_shot_data["labels"]
         assert len(nb_shot_images) == len(nb_shot_labels) == 1000
         out_pred = []
+        logging.info(f"{nb_shot}-shot classification")
         for i in tqdm(range(len(nb_shot_images))):
             # Selecting few shot samples
             support_images = nb_shot_images[i]

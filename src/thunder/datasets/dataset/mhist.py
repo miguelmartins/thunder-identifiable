@@ -1,9 +1,12 @@
+import logging
+
+
 def download_mhist(root_folder: str):
     from ..utils import (
         unzip_file,
     )
 
-    print(
+    logging.info(
         "In order to download the MHIST dataset, you will have to visit https://bmirds.github.io/MHIST/#accessing-dataset and fill in the data access form. After this, you should receive an email with links to download the required data. This procedure should only take you a couple of minutes."
     )
 
@@ -13,7 +16,7 @@ def download_mhist(root_folder: str):
     )
 
     if user_input == "y":
-        print(
+        logging.info(
             f"We have created the MHIST folder. You should download the annotations.csv and images.zip following the links you received by email and place them in the folder: {root_folder}."
         )
 
@@ -35,13 +38,13 @@ def download_mhist(root_folder: str):
         elif user_input == "n":
             pass
         else:
-            print("Invalid input. Please enter 'y' or 'n'.")
+            logging.error("Invalid input. Please enter 'y' or 'n'.")
             return
     elif user_input == "n":
         # remove root folder
         os.rmdir(root_folder)
     else:
-        print("Invalid input. Please enter 'y' or 'n'.")
+        logging.error("Invalid input. Please enter 'y' or 'n'.")
         return
 
 

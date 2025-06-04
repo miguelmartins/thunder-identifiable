@@ -1,5 +1,6 @@
 from collections import defaultdict
 from collections.abc import Callable
+import logging
 import os
 import random
 from pathlib import Path
@@ -119,9 +120,9 @@ def generate_splits_for_dataset(dataset_name: str) -> None:
         "segpath_lymphocytes": create_splits_segpath_lymphocytes,
     }
 
-    assert dataset_name in DatasetConstants.DATASETS.value, print(
-        f"{dataset_name} is not within the list of available datasets: {DatasetConstants.DATASETS.value}."
-    )
+    assert (
+        dataset_name in DatasetConstants.DATASETS.value
+    ), f"{dataset_name} is not within the list of available datasets: {DatasetConstants.DATASETS.value}."
 
     generate_data_splits(
         base_folder=os.path.join(os.environ["THUNDER_BASE_DATA_FOLDER"], "datasets"),
@@ -209,9 +210,9 @@ def check_dataset(
     ]:
         images = data_splits[split]["images"]
         labels = data_splits[split]["labels"]
-        assert len(images) == len(labels) == nb_samples, print(
-            f"Got {len(images)} {split} images and {len(labels)} {split} labels, but expecting {nb_samples} {split} samples for {dataset_cfg['dataset_name']}."
-        )
+        assert (
+            len(images) == len(labels) == nb_samples
+        ), f"Got {len(images)} {split} images and {len(labels)} {split} labels, but expecting {nb_samples} {split} samples for {dataset_cfg['dataset_name']}."
 
     # Checking image resolution
     if "image_sizes" in dataset_cfg.keys():
@@ -221,9 +222,9 @@ def check_dataset(
         sample_image = Image.open(
             os.path.join(base_folder, dataset_cfg.dataset_name, train_im_sample)
         ).convert("RGB")
-        assert list(sample_image.size) in dataset_cfg.image_sizes, print(
-            f"Image size {list(sample_image.size)} is not within the list of expected sizes: {dataset_cfg.image_sizes}."
-        )
+        assert (
+            list(sample_image.size) in dataset_cfg.image_sizes
+        ), f"Image size {list(sample_image.size)} is not within the list of expected sizes: {dataset_cfg.image_sizes}."
 
     check_dataset_md5(data_splits, dataset_cfg)
 
@@ -301,7 +302,7 @@ def generate_data_splits(
     if os.path.exists(dataset_folder):
         dataset_cfg = OmegaConf.load(dataset_yaml)
         split_function(base_folder, dataset_cfg)
-        print(f"Generated data split for {dataset_folder}.")
+        logging.info(f"Generated data split for {dataset_folder}.")
 
 
 def get_data_from_set(dataset_folder: str, set_name: str, dataset_cfg: dict) -> list:

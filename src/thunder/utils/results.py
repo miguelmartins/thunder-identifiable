@@ -1,3 +1,4 @@
+import logging
 import os
 
 METRICS = ["accuracy", "balanced_accuracy", "f1", "jaccard", "roc_auc"]
@@ -66,7 +67,7 @@ def gather_results():
     import glob
     import pandas as pd
 
-    print("Gathering results...")
+    logging.info("Gathering results...")
     results_dir = os.path.join(os.environ["THUNDER_BASE_DATA_FOLDER"], "outputs", "res")
     results_files = glob.glob(f"{results_dir}/**/*.json", recursive=True)
 
@@ -105,7 +106,7 @@ def gather_results():
 
     df = pd.DataFrame(res)
     df.to_csv(os.path.join(results_dir, "results.csv"), index=False)
-    print("Saved at:", os.path.join(results_dir, "results.csv"))
-    print(
+    logging.info("Saved at:", os.path.join(results_dir, "results.csv"))
+    logging.info(
         "The setting column corresponds to: (i) Adversarial/Clean for adversarial_attack, (ii) nb shots for simple_shot, (iii) k for image_retrieval."
     )

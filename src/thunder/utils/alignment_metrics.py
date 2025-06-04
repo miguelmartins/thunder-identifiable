@@ -104,7 +104,6 @@ class AlignmentMetrics:
         hsic_kl = hsic_fn(K, L)
 
         # Compute CKA
-        # print('hsic', hsic_kl)
         cka_value = hsic_kl / (torch.sqrt(hsic_kk * hsic_ll) + 1e-6)
         return cka_value.item()
 

@@ -18,9 +18,9 @@ def get_data(dataset_name: str, base_data_folder: str) -> dict:
     :param base_data_folder: base path where data is stored.
     :return data dictionary.
     """
-    assert dataset_name in DatasetConstants.DATASETS.value, print(
-        f"{dataset_name} is not within the list of available datasets: {DatasetConstants.DATASETS.value}."
-    )
+    assert (
+        dataset_name in DatasetConstants.DATASETS.value
+    ), f"{dataset_name} is not within the list of available datasets: {DatasetConstants.DATASETS.value}."
 
     # Reading json data file
     data_path = os.path.join(base_data_folder, "data_splits", f"{dataset_name}.json")

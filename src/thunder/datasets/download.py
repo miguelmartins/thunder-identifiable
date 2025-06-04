@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import List, Union
 from pathlib import Path
@@ -98,7 +99,9 @@ def download_dataset(dataset: str):
 
     # if folder exists do not download again
     if os.path.exists(root_folder):
-        print(f"Folder {dataset} already exists in {root_folder}, skipping download.")
+        logging.info(
+            f"Folder {dataset} already exists in {root_folder}, skipping download."
+        )
         return
 
     Path(root_folder).mkdir(parents=True, exist_ok=True)
