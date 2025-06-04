@@ -74,6 +74,7 @@ def simple_shot(
                 test_embs - mean_support_emb,
                 test_labels,
                 [1],
+                disable_progress_bar=True,
             )
 
             # Logging

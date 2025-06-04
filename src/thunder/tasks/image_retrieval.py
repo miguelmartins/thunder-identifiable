@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from PIL import Image
+from tqdm import tqdm
 import wandb
 
 from ..utils.data import get_data
@@ -32,6 +33,7 @@ def topk_retrieval(
     k_vals: list,
     chunk_size: int = 10000,
     return_viz_data: bool = False,
+    disable_progress_bar: bool = False,
 ) -> tuple[dict, dict, dict]:
     """
     Computing similarities between queries and keys.
@@ -42,6 +44,7 @@ def topk_retrieval(
     :param k_vals: values of k to consider.
     :param chunk_size: maximum number of query embeddings for which we compute dot product similarity with all key embeddings.
     :param return_viz_data: whether to return data to visualize topk samples.
+    :param disable_progress_bar: whether to hide the progress bar.
     :return dict of metrics, sorted images ids and viz data if required.
     """
     # Normalizing embeddings
@@ -57,7 +60,9 @@ def topk_retrieval(
     preds_per_k = defaultdict(list)
     sorted_ids_per_k = defaultdict(list)
     viz_data = []
-    for row in range(0, queries.shape[0], chunk_size):
+    for row in tqdm(
+        range(0, queries.shape[0], chunk_size), disable=disable_progress_bar
+    ):
         # Dot product
         row_end = row + chunk_size
         dot_product = np.dot(queries[row:row_end], keys.transpose())
