@@ -12,6 +12,7 @@ def get_config(
     adaptation: Optional[str] = None,
     data_loading_type: Optional[str] = None,
     wandb_mode: Optional[str] = None,
+    embedding_recomputing: Optional[str] = None,
     **kwargs,
 ) -> DictConfig:
     params = {
@@ -22,6 +23,7 @@ def get_config(
         "pretrained_model": pretrained_model,
         "task": task,
         "wandb": wandb_mode,
+        "embedding_recomputing": embedding_recomputing,
     }
 
     overrides = [f"+{k}={v}" for k, v in params.items() if v is not None]

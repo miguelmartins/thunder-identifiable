@@ -71,6 +71,12 @@ def benchmark(
     online_wandb: Annotated[
         bool, typer.Option(help="Logging with the online mode of wandb")
     ] = False,
+    recomp_embs: Annotated[
+        bool,
+        typer.Option(
+            help="If provided embeddings will be re-computed even if already saved"
+        ),
+    ] = False,
     kwargs: Annotated[List[str], typer.Argument(help="Additional arguments")] = None,
 ):
     from . import benchmark
@@ -94,6 +100,7 @@ def benchmark(
         lora,
         ckpt_save_all,
         online_wandb,
+        recomp_embs,
         **kwargs,
     )
 

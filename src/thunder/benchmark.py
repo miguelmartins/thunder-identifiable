@@ -17,6 +17,7 @@ def benchmark(
     lora: bool = False,
     ckpt_save_all: bool = False,
     online_wandb: bool = False,
+    recomp_embs: bool = False,
     **kwargs,
 ):
     """
@@ -36,6 +37,7 @@ def benchmark(
         lora (bool): Whether to use LoRA (Low-Rank Adaptation) for model adaptation. Default is False.
         ckpt_save_all (bool): Whether to save all checkpoints during training. Default is False which means that only the best is saved.
         online_wandb (bool): Whether to use online mode for Weights & Biases (wandb) logging. Default is False which means offline mode.
+        recomp_embs (bool): Whether to recompute embeddings if already saved.
     """
     from hydra import compose, initialize
     from omegaconf import OmegaConf
@@ -45,6 +47,7 @@ def benchmark(
     wandb_mode = "online" if online_wandb else "offline"
     adaptation_type = "lora" if lora else "frozen"
     ckpt_saving = "save_ckpts_all_epochs" if ckpt_save_all else "save_best_ckpt_only"
+    embedding_recomputing = "recomp_embs" if recomp_embs else "no_recomp_embs"
     model_name = model if isinstance(model, str) else None
 
     if model_name and model_name.startswith("custom:"):
@@ -60,6 +63,7 @@ def benchmark(
         adaptation_type,
         loading_mode,
         wandb_mode,
+        embedding_recomputing,
         **kwargs,
     )
 
@@ -253,7 +257,23 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
                 f"No pre-computed embeddings found for the (dataset, model) pair "
                 f"({dataset_name}, {model_name}). Computing them."
             )
+            comp_embs = True
+        else:
+            emb_info_str = (
+                f"Pre-computed embeddings already found for the (dataset, model) pair "
+                f"({dataset_name}, {model_name})."
+            )
 
+            if cfg.embedding_recomputing.recompute_embeddings:
+                emb_info_str += " Re-computing them as explictly requested."
+                comp_embs = True
+            else:
+                emb_info_str += " Not re-computing them."
+                comp_embs = False
+
+            logging.info(emb_info_str)
+
+        if comp_embs:
             pre_computing_patch_embeddings(
                 cfg,
                 embeddings_folder,
@@ -267,12 +287,6 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
                 image_pre_loading,
                 embedding_pre_loading,
                 model_cls,
-            )
-
-        else:
-            logging.info(
-                f"Pre-computed embeddings already found for the (dataset, model) pair "
-                f"({dataset_name}, {model_name}). Not re-computing them."
             )
 
         if task_type in [
