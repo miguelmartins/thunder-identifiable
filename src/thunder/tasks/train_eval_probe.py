@@ -538,7 +538,7 @@ def train_eval(
     tot_loss = []
     all_out = []
     all_label = []
-    for batch_id, batch in enumerate(dataloader):
+    for batch_id, batch in tqdm(enumerate(dataloader), total=len(dataloader)):
         # Batch data
         if "emb" in batch.keys():
             emb = batch["emb"].to(device)
