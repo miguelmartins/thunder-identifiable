@@ -114,7 +114,7 @@ class LoRALayer(nn.Module):
         std = torch.sqrt(torch.tensor(rank).float())
         self.A = torch.nn.Parameter(torch.randn(in_dim, rank) / std)
         self.B = torch.nn.Parameter(torch.zeros(rank, out_dim))
-        self.alpha = alpha
+        self.alpha = alpha / rank
 
     def forward(self, src: torch.Tensor) -> torch.Tensor:
         """

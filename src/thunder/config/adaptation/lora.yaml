@@ -5,6 +5,6 @@ lora_alpha: 16
 # Hyperparameters
 batch_size: 2
 num_workers: 2
-lr: [1e-5, 1e-6, 1e-7]
+lr: [1e-3, 1e-4, 1e-5]
 weight_decay: [0.0, 1e-3, 1e-4]
 epochs: 20
