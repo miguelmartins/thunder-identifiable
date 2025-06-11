@@ -580,32 +580,43 @@ def train_eval(
                     )
 
         # Applying masking (removing pixels where gt == -1)
-        unmasked_label = label != -1
-        label = label[unmasked_label]
+        if task_type == "segmentation":
+            unmasked_label = [l != -1 for l in label]
+            label = [l[u] for l, u in zip(label, unmasked_label)]
+        else:
+            label = label.view(-1)
         loss = 0
         for i in range(len(outputs)):
             output = outputs[i]
             out = []
-            for c in range(output.shape[1]):
-                out.append(output[:, c][unmasked_label].unsqueeze(-1))
-            out = torch.cat(out, dim=-1)
-
-            # Compute loss
-            curr_loss = criterion(out, label)
+            if task_type == "segmentation":
+                for o, m in zip(output, unmasked_label):
+                    out.append(torch.cat([o[c][m].unsqueeze(-1) for c in range(o.shape[0])], dim=-1))
+                curr_loss = sum([criterion(o, l) for o, l in zip(out, label)]) / len(out)
+            else:
+                for c in range(output.shape[1]):
+                    out.append(output[:, c].unsqueeze(-1))
+                out = torch.cat(out, dim=-1)
+                curr_loss = criterion(out, label)
             loss += curr_loss
 
             # Logging
             if batch_id == 0:
                 tot_loss.append([curr_loss.item()])
                 if comp_metrics:
-                    all_out.append([out.detach().cpu()])
+                    all_out.append([[o.detach().cpu() for o in out]] if task_type == 'segmentation'
+                                   else [out.detach().cpu()])
             else:
                 tot_loss[i].append(curr_loss.item())
                 if comp_metrics:
-                    all_out[i].append(out.detach().cpu())
+                    all_out[i].append([o.detach().cpu() for o in out] if task_type == 'segmentation'
+                                      else out.detach().cpu())
         # Logging
         if comp_metrics:
-            all_label.append(label.cpu())
+            if task_type == "segmentation":
+                all_label.extend([l.cpu() for l in label])
+            else:
+                all_label.append(label.cpu())
 
         if run_type == "train":
             # Compute gradients
@@ -627,18 +638,27 @@ def train_eval(
         viz_im = None
 
     if comp_metrics:
-        # Computing metrics
-        all_label = torch.cat(all_label)
-        metrics = []
-        for i in range(len(all_out)):
-            all_out[i] = torch.cat(all_out[i])
-            all_out[i] = F.softmax(all_out[i], dim=1)
-            classification_metrics = compute_metrics(all_out[i], None, all_label)
-            conformal_metrics = compute_calibration_metrics(all_out[i], all_label)
-            curr_metrics = (
-                classification_metrics | conformal_metrics
-            )  # merging dictionaries
-            metrics.append(curr_metrics)
+        if task_type == "segmentation":
+            metrics = []
+            for i in range(len(all_out)):
+                all_out[i] = [F.softmax(item, dim=1) for batch in all_out[i] for item in batch]
+                all_metrics = [compute_metrics(o, None, l, True) for o, l in zip(all_out[i], all_label) if len(l) > 0]
+                weights = [len(l) for l in all_label if len(l) > 0]
+                metrics.append({key: np.average([d[key] for d in all_metrics], weights=weights) for key in all_metrics[0]} |
+                               {f'{key}_per_sample': [d[key] for d in all_metrics] for key in all_metrics[0]})
+        else:
+            # Computing metrics
+            all_label = torch.cat(all_label)
+            metrics = []
+            for i in range(len(all_out)):
+                all_out[i] = torch.cat(all_out[i])
+                all_out[i] = F.softmax(all_out[i], dim=1)
+                classification_metrics = compute_metrics(all_out[i], None, all_label)
+                conformal_metrics = compute_calibration_metrics(all_out[i], all_label)
+                curr_metrics = (
+                    classification_metrics | conformal_metrics
+                )  # merging dictionaries
+                metrics.append(curr_metrics)
     else:
         metrics = None
 
