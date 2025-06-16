@@ -1,4 +1,6 @@
 def download_pannuke(root_folder: str):
+    import os
+
     from ..utils import (
         download_from_url,
         unzip_file,
