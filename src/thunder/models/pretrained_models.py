@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from omegaconf import DictConfig, OmegaConf
+from pathlib import Path
 import timm
 from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
@@ -254,6 +255,69 @@ def get_model(model_cfg: dict, device: str):
             return emb
 
     return model, transform, extract_embedding
+
+
+def get_model_from_name(model_name: str, device: str):
+    """Loading pretrained model from input name.
+
+    The list of all available models:
+        * uni
+        * uni2h
+        * virchow
+        * virchow2
+        * hoptimus0
+        * hoptimus1
+        * conch
+        * titan
+        * phikon
+        * phikon2
+        * hiboub
+        * hiboul
+        * midnight
+        * keep
+        * quiltb32
+        * plip
+        * musk
+        * dinov2base
+        * dinov2large
+        * vitbasepatch16224in21k
+        * vitlargepatch16224in21k
+        * clipvitbasepatch32
+        * clipvitlargepatch14
+
+    Args:
+        model_name (str): The name of the model to use.
+        device (str): Device to use (cpu, cuda).
+
+    Returns:
+        model (torch.nn.Module): Pytorch model instance.
+        transform (torchvision.transforms.transforms.Compose): Transform to apply to input image.
+        get_embeddings (Callable): Function to extract embeddings.
+
+    Tip: output function `get_embeddings` signature.
+        * src (torch.Tensor): Batch of transformed images with shape (B, 3, H, W).
+        * pretrained_model (torch.nn.Module): Model to extract embeddings with.
+        * pooled_emb (bool):  Whether to output pooled (True) or spatial (False) embeddings.
+    """
+
+    # Loading model config
+    yaml_file = (
+        f"{Path(__file__).parent.parent}/config/pretrained_model/{model_name}.yaml"
+    )
+    model_cfg = OmegaConf.load(yaml_file)
+
+    # Getting model, transform, embedding extraction function
+    model, transform, extract_embedding = get_model(model_cfg, device)
+
+    # Defining wrapper function to get embeddings
+    def get_embeddings(src, pretrained_model, pooled_emb=True):
+        return extract_embedding(
+            src,
+            pretrained_model,
+            task_type="linear_probing" if pooled_emb else "segmentation",
+        )
+
+    return model, transform, get_embeddings
 
 
 def get_from_timm(hf_tag: str, timm_kwargs: dict, ckpt_path: str, device: str):

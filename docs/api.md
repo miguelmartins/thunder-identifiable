@@ -7,3 +7,5 @@
 ::: thunder.generate_splits
 
 ::: thunder.models.PretrainedModel
+
+::: thunder.models.get_model_from_name
