@@ -170,7 +170,9 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
         task_type,
         adaptation_type,
     )
-    os.makedirs(res_folder, exist_ok=True)
+    if os.path.exists(res_folder):
+        shutil.rmtree(res_folder)
+    os.makedirs(res_folder)
 
     if task_type in ["linear_probing", "segmentation"]:
         # Model checkpoints folder
