@@ -3,6 +3,7 @@ import os
 import hydra
 import logging
 from omegaconf import DictConfig
+import shutil
 from typing import Callable
 
 from .datasets.utils import is_dataset_available
@@ -18,6 +19,7 @@ def benchmark(
     ckpt_save_all: bool = False,
     online_wandb: bool = False,
     recomp_embs: bool = False,
+    retrain_model: bool = False,
     **kwargs,
 ):
     """
@@ -38,6 +40,7 @@ def benchmark(
         ckpt_save_all (bool): Whether to save all checkpoints during training. Default is False which means that only the best is saved.
         online_wandb (bool): Whether to use online mode for Weights & Biases (wandb) logging. Default is False which means offline mode.
         recomp_embs (bool): Whether to recompute embeddings if already saved.
+        retrain_model (bool): Whether to retrain model if already trained and saved ckpts.
     """
     from hydra import compose, initialize
     from omegaconf import OmegaConf
@@ -48,6 +51,7 @@ def benchmark(
     adaptation_type = "lora" if lora else "frozen"
     ckpt_saving = "save_ckpts_all_epochs" if ckpt_save_all else "save_best_ckpt_only"
     embedding_recomputing = "recomp_embs" if recomp_embs else "no_recomp_embs"
+    model_retraining = "retrain_model" if retrain_model else "no_retrain_model"
     model_name = model if isinstance(model, str) else None
 
     if model_name and model_name.startswith("custom:"):
@@ -64,6 +68,7 @@ def benchmark(
         loading_mode,
         wandb_mode,
         embedding_recomputing,
+        model_retraining,
         **kwargs,
     )
 
@@ -154,15 +159,6 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
         mode=cfg.wandb.mode,
     )
     wandb_base_folder = f"|{task_type}| |{adaptation_type}| |{dataset_name}|"
-    ckpt_folder = os.path.join(
-        os.environ["THUNDER_BASE_DATA_FOLDER"],
-        "outputs",
-        "ckpts",
-        dataset_name,
-        model_name,
-        adaptation_type,
-    )
-    os.makedirs(ckpt_folder, exist_ok=True)
 
     # Folder to save results
     res_folder = os.path.join(
@@ -177,6 +173,16 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
     os.makedirs(res_folder, exist_ok=True)
 
     if task_type in ["linear_probing", "segmentation"]:
+        # Model checkpoints folder
+        ckpt_folder = os.path.join(
+            os.environ["THUNDER_BASE_DATA_FOLDER"],
+            "outputs",
+            "ckpts",
+            dataset_name,
+            model_name,
+            adaptation_type,
+        )
+
         # Criterion
         if task_type == "linear_probing":
             criterion = torch.nn.CrossEntropyLoss()
@@ -191,6 +197,28 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
 
         # Probe training
         if not os.path.exists(os.path.join(ckpt_folder, "best_model.pth")):
+            logging.info(f"Not found already trained best model. Training a model.")
+            train_model = True
+
+            # Deleting existing folder
+            if os.path.exists(ckpt_folder):
+                shutil.rmtree(ckpt_folder)
+            os.makedirs(ckpt_folder)
+        else:
+            model_train_info_str = f"Found already trained best model {os.path.join(ckpt_folder, 'best_model.pth')}."
+
+            if cfg.model_retraining.retrain_model:
+                model_train_info_str += " Deleting saved weights and re-training a model as explictly requested."
+                shutil.rmtree(ckpt_folder)
+                os.makedirs(ckpt_folder)
+                train_model = True
+            else:
+                model_train_info_str += " Not re-training a model."
+                train_model = False
+
+            logging.info(model_train_info_str)
+
+        if train_model:
             best_ckpt_dict = train_probe(
                 cfg,
                 data,
@@ -209,10 +237,6 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
                 model_cls,
             )
         else:
-            logging.info(
-                f"Found already trained best model {os.path.join(ckpt_folder, 'best_model.pth')}. "
-                f"Not re-training."
-            )
             best_ckpt_dict = torch.load(
                 os.path.join(ckpt_folder, "best_model.pth"), weights_only=True
             )

@@ -77,6 +77,12 @@ def benchmark(
             help="If provided embeddings will be re-computed even if already saved"
         ),
     ] = False,
+    retrain_model: Annotated[
+        bool,
+        typer.Option(
+            help="If provided model will be re-trained even if already trained and saved ckpts"
+        ),
+    ] = False,
     kwargs: Annotated[List[str], typer.Argument(help="Additional arguments")] = None,
 ):
     from . import benchmark
@@ -101,6 +107,7 @@ def benchmark(
         ckpt_save_all,
         online_wandb,
         recomp_embs,
+        retrain_model,
         **kwargs,
     )
 
