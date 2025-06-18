@@ -30,6 +30,7 @@ def knn(
         embs["val"],
         labels["val"],
         k_vals,
+        compute_ci=False,
     )
 
     # Logging
@@ -40,7 +41,7 @@ def knn(
     best_k = None
     best_val_f1 = -float("inf")
     for k in k_vals:
-        val_f1 = np.array(val_metrics[k]["f1"]).mean().item()
+        val_f1 = np.array(val_metrics[k]["f1"]["metric_score"]).mean().item()
         if val_f1 > best_val_f1:
             best_val_f1 = val_f1
             best_k = k

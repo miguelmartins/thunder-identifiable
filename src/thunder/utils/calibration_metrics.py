@@ -1,12 +1,17 @@
 import numpy as np
 import torch
 
+from ..utils.downstream_metrics import compute_metric
 
-def compute_calibration_metrics(out_proba: torch.Tensor, label: torch.Tensor) -> dict:
+
+def compute_calibration_metrics(
+    out_proba: torch.Tensor, label: torch.Tensor, compute_ci: bool = True
+) -> dict:
     """
     Computing performance metrics.
     :param out: tensor of proba predictions.
     :param label: tensor of ground-truth labels.
+    :param compute_ci: whether to compute confidence intervals.
     :return: dict of conformal prediction metrics.
     """
 
@@ -15,11 +20,41 @@ def compute_calibration_metrics(out_proba: torch.Tensor, label: torch.Tensor) ->
     label = label.numpy()
 
     # Computing metrics
-    ece = expected_calibration_error(out_proba, label)
-    mce = maximum_calibration_error(out_proba, label)
-    sce = static_calibration_error(out_proba, label)
-    ace = adaptive_calibration_error(out_proba, label)
-    tace = thresholded_adaptive_calibration_error(out_proba, label)
+    ece = compute_metric(
+        label,
+        out_proba,
+        lambda y, y_proba: expected_calibration_error(y_proba, y),
+        label_indices=np.arange(len(label)),
+        compute_ci=compute_ci,
+    )
+    mce = compute_metric(
+        label,
+        out_proba,
+        lambda y, y_proba: maximum_calibration_error(y_proba, y),
+        label_indices=np.arange(len(label)),
+        compute_ci=compute_ci,
+    )
+    sce = compute_metric(
+        label,
+        out_proba,
+        lambda y, y_proba: static_calibration_error(y_proba, y),
+        label_indices=np.arange(len(label)),
+        compute_ci=compute_ci,
+    )
+    ace = compute_metric(
+        label,
+        out_proba,
+        lambda y, y_proba: adaptive_calibration_error(y_proba, y),
+        label_indices=np.arange(len(label)),
+        compute_ci=compute_ci,
+    )
+    tace = compute_metric(
+        label,
+        out_proba,
+        lambda y, y_proba: thresholded_adaptive_calibration_error(y_proba, y),
+        label_indices=np.arange(len(label)),
+        compute_ci=compute_ci,
+    )
 
     return {
         "ECE": ece,

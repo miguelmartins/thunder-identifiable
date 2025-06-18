@@ -26,7 +26,7 @@ from ..models.task_specific_models import (
 from ..utils.constants import UtilsConstants
 from ..utils.calibration_metrics import compute_calibration_metrics
 from ..utils.data import PatchDataset
-from ..utils.downstream_metrics import compute_metrics
+from ..utils.downstream_metrics import compute_metric, compute_metrics
 from ..utils.utils import (
     get_hyperaparams_dict,
     local_seed,
@@ -272,13 +272,13 @@ def train_probe(
                     # Updating best ckpt
                     if (
                         task_type == "linear_probing"
-                        and metrics[i]["f1"] > best_val_perf
+                        and metrics[i]["f1"]["metric_score"] > best_val_perf
                     ) or (
                         task_type == "segmentation"
                         and np.array(losses[i]).mean().item() < best_val_perf
                     ):
                         if task_type == "linear_probing":
-                            best_val_perf = metrics[i]["f1"]
+                            best_val_perf = metrics[i]["f1"]["metric_score"]
                         elif task_type == "segmentation":
                             best_val_perf = np.array(losses[i]).mean().item()
                         best_ckpt_hyperparam_id = i
@@ -538,7 +538,9 @@ def train_eval(
     tot_loss = []
     all_out = []
     all_label = []
-    for batch_id, batch in tqdm(enumerate(dataloader), total=len(dataloader)):
+    for batch_id, batch in tqdm(
+        enumerate(dataloader), total=len(dataloader), disable=hyperparam_search
+    ):
         # Batch data
         if "emb" in batch.keys():
             emb = batch["emb"].to(device)
@@ -591,8 +593,14 @@ def train_eval(
             out = []
             if task_type == "segmentation":
                 for o, m in zip(output, unmasked_label):
-                    out.append(torch.cat([o[c][m].unsqueeze(-1) for c in range(o.shape[0])], dim=-1))
-                curr_loss = sum([criterion(o, l) for o, l in zip(out, label)]) / len(out)
+                    out.append(
+                        torch.cat(
+                            [o[c][m].unsqueeze(-1) for c in range(o.shape[0])], dim=-1
+                        )
+                    )
+                curr_loss = sum([criterion(o, l) for o, l in zip(out, label)]) / len(
+                    out
+                )
             else:
                 for c in range(output.shape[1]):
                     out.append(output[:, c].unsqueeze(-1))
@@ -604,13 +612,19 @@ def train_eval(
             if batch_id == 0:
                 tot_loss.append([curr_loss.item()])
                 if comp_metrics:
-                    all_out.append([[o.detach().cpu() for o in out]] if task_type == 'segmentation'
-                                   else [out.detach().cpu()])
+                    all_out.append(
+                        [[o.detach().cpu() for o in out]]
+                        if task_type == "segmentation"
+                        else [out.detach().cpu()]
+                    )
             else:
                 tot_loss[i].append(curr_loss.item())
                 if comp_metrics:
-                    all_out[i].append([o.detach().cpu() for o in out] if task_type == 'segmentation'
-                                      else out.detach().cpu())
+                    all_out[i].append(
+                        [o.detach().cpu() for o in out]
+                        if task_type == "segmentation"
+                        else out.detach().cpu()
+                    )
         # Logging
         if comp_metrics:
             if task_type == "segmentation":
@@ -641,11 +655,29 @@ def train_eval(
         if task_type == "segmentation":
             metrics = []
             for i in range(len(all_out)):
-                all_out[i] = [F.softmax(item, dim=1) for batch in all_out[i] for item in batch]
-                all_metrics = [compute_metrics(o, None, l, True) for o, l in zip(all_out[i], all_label) if len(l) > 0]
+                all_out[i] = [
+                    F.softmax(item, dim=1) for batch in all_out[i] for item in batch
+                ]
+                all_metrics = [
+                    compute_metrics(o, None, l, True, compute_ci=False)
+                    for o, l in zip(all_out[i], all_label)
+                    if len(l) > 0
+                ]
                 weights = [len(l) for l in all_label if len(l) > 0]
-                metrics.append({key: np.average([d[key] for d in all_metrics], weights=weights) for key in all_metrics[0]} |
-                               {f'{key}_per_sample': [d[key] for d in all_metrics] for key in all_metrics[0]})
+
+                # Averagin per-image performance and computing confidence intervals
+                all_metrics_out = {}
+                for key in all_metrics[0]:
+                    metric_vals = [d[key]["metric_score"] for d in all_metrics]
+                    all_metrics_out[key] = compute_metric(
+                        weights,
+                        metric_vals,
+                        lambda weights, metric_vals: np.average(
+                            metric_vals, weights=weights
+                        ),
+                    )
+                    all_metrics_out[f"per_sample_{key}"] = metric_vals
+                metrics.append(all_metrics_out)
         else:
             # Computing metrics
             all_label = torch.cat(all_label)
@@ -653,8 +685,12 @@ def train_eval(
             for i in range(len(all_out)):
                 all_out[i] = torch.cat(all_out[i])
                 all_out[i] = F.softmax(all_out[i], dim=1)
-                classification_metrics = compute_metrics(all_out[i], None, all_label)
-                conformal_metrics = compute_calibration_metrics(all_out[i], all_label)
+                classification_metrics = compute_metrics(
+                    all_out[i], None, all_label, compute_ci=(not hyperparam_search)
+                )
+                conformal_metrics = compute_calibration_metrics(
+                    all_out[i], all_label, compute_ci=(not hyperparam_search)
+                )
                 curr_metrics = (
                     classification_metrics | conformal_metrics
                 )  # merging dictionaries

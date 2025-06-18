@@ -77,6 +77,7 @@ def simple_shot(
                 test_labels,
                 [1],
                 disable_progress_bar=True,
+                compute_ci=False,
             )
 
             # Logging

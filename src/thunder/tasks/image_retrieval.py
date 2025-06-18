@@ -35,6 +35,7 @@ def topk_retrieval(
     chunk_size: int = 10000,
     return_viz_data: bool = False,
     disable_progress_bar: bool = False,
+    compute_ci: bool = True,
 ) -> tuple[dict, dict, dict]:
     """
     Computing similarities between queries and keys.
@@ -46,6 +47,7 @@ def topk_retrieval(
     :param chunk_size: maximum number of query embeddings for which we compute dot product similarity with all key embeddings.
     :param return_viz_data: whether to return data to visualize topk samples.
     :param disable_progress_bar: whether to hide the progress bar.
+    :param compute_ci: whether to compute confidence intervals.
     :return dict of metrics, sorted images ids and viz data if required.
     """
     # Normalizing embeddings
@@ -93,7 +95,9 @@ def topk_retrieval(
     # Metrics
     metrics_per_k = {}
     for k in k_vals:
-        metrics_per_k[k] = compute_metrics(None, np.array(preds_per_k[k]), query_labels)
+        metrics_per_k[k] = compute_metrics(
+            None, np.array(preds_per_k[k]), query_labels, compute_ci=compute_ci
+        )
 
     return metrics_per_k, sorted_ids_per_k, viz_data
 
@@ -180,7 +184,7 @@ def image_retrieval(
 
     # Logging
     for k in k_vals:
-        log_metrics(wandb_base_folder, metrics, "test", step=k)
+        log_metrics(wandb_base_folder, metrics[k], "test", step=k)
     save_outputs(res_folder, metrics)
 
     return metrics

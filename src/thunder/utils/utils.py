@@ -61,13 +61,14 @@ def log_metrics(wandb_base_folder: str, metrics: dict, split: str, step: int):
     """
     logs = {}
     for metric in metrics.keys():
-        if metric not in [
-            "label",
-            "per_sample_acc",
-            "per_sample_pred",
-            "per_sample_proba",
-        ]:
-            logs[f"{wandb_base_folder}/{split}_{metric}"] = metrics[metric]
+        if (
+            metric != "label"
+            and "per_sample" not in metric
+            and metrics[metric] is not None
+        ):
+            logs[f"{wandb_base_folder}/{split}_{metric}"] = metrics[metric][
+                "metric_score"
+            ]
     wandb.log(logs, step=step)
 
 

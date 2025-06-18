@@ -15,13 +15,19 @@ import torch.nn.functional as F
 import torchvision.transforms as T
 import wandb
 from omegaconf import DictConfig
+from sklearn.metrics import (
+    accuracy_score,
+    balanced_accuracy_score,
+    f1_score,
+    jaccard_score,
+)
 from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
 
 from ..models.pretrained_models import load_pretrained_model
 from ..utils.constants import UtilsConstants
 from ..utils.data import PatchDataset, get_data
-from ..utils.downstream_metrics import compute_metrics
+from ..utils.downstream_metrics import compute_metric, compute_metrics
 from ..utils.pgd_attack_linear import PGDImageAttack
 from ..utils.utils import log_metrics, save_outputs
 
@@ -177,12 +183,49 @@ def adversarial_attack(
     all_adv_preds = torch.cat(all_adv_preds).cpu().numpy()
     all_labels = torch.cat(all_labels).cpu().numpy()
 
-    # Compute accuracy before and after attack
+    # Compute metrics before and after attack
     clean_metrics = compute_metrics(None, all_clean_preds, all_labels)
     adv_metrics = compute_metrics(None, all_adv_preds, all_labels)
     metrics = {
         "clean": clean_metrics,
         "adversarial": adv_metrics,
+    }
+
+    # Drop in metrics (mean and confidence intervals)
+    f1_drop = compute_metric(
+        all_labels,
+        np.concatenate([all_clean_preds[:, None], all_adv_preds[:, None]], axis=1),
+        lambda y, y_pred: f1_score(y_true=y, y_pred=y_pred[:, 0], average="macro")
+        - f1_score(y_true=y, y_pred=y_pred[:, 1], average="macro"),
+        label_indices=np.arange(len(all_labels)),
+    )
+    accuracy_drop = compute_metric(
+        all_labels,
+        np.concatenate([all_clean_preds[:, None], all_adv_preds[:, None]], axis=1),
+        lambda y, y_pred: accuracy_score(y_true=y, y_pred=y_pred[:, 0])
+        - accuracy_score(y_true=y, y_pred=y_pred[:, 1]),
+        label_indices=np.arange(len(all_labels)),
+    )
+    jaccard_drop = compute_metric(
+        all_labels,
+        np.concatenate([all_clean_preds[:, None], all_adv_preds[:, None]], axis=1),
+        lambda y, y_pred: jaccard_score(y_true=y, y_pred=y_pred[:, 0], average="macro")
+        - jaccard_score(y_true=y, y_pred=y_pred[:, 1], average="macro"),
+        label_indices=np.arange(len(all_labels)),
+    )
+    balanced_accuracy_drop = compute_metric(
+        all_labels,
+        np.concatenate([all_clean_preds[:, None], all_adv_preds[:, None]], axis=1),
+        lambda y, y_pred: balanced_accuracy_score(y_true=y, y_pred=y_pred[:, 0])
+        - balanced_accuracy_score(y_true=y, y_pred=y_pred[:, 1]),
+        label_indices=np.arange(len(all_labels)),
+    )
+
+    metrics["drop"] = {
+        "f1": f1_drop,
+        "accuracy": accuracy_drop,
+        "jaccard": jaccard_drop,
+        "balanced_accuracy": balanced_accuracy_drop,
     }
 
     # save ---------------------------------------------------------------
