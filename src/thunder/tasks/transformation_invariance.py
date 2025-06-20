@@ -143,7 +143,7 @@ def transformation_invariance(
 
     dataloader = DataLoader(
         subset_dataset,
-        batch_size=cfg.adaptation.batch_size,
+        batch_size=cfg.task.transformation_invariance_batch_size,
         shuffle=False,
         num_workers=cfg.adaptation.num_workers,
         generator=generator,

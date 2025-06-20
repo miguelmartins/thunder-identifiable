@@ -1,5 +1,5 @@
 type: transformation_invariance
 compatible_adaptation_types: ["frozen"]
 base_embeddings_folder: ${oc.env:THUNDER_BASE_DATA_FOLDER}/embeddings/
-pre_comp_emb_batch_size: 128
+transformation_invariance_batch_size: 64
 nb_images: 1000

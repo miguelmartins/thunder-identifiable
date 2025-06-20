@@ -8,7 +8,7 @@ from typing import Callable
 
 from .datasets.utils import is_dataset_available
 from .models.utils import is_model_available, load_custom_model_from_file
-
+from .utils.utils import print_task_hyperparams
 
 def benchmark(
     model: str | Callable,
@@ -46,17 +46,19 @@ def benchmark(
     from omegaconf import OmegaConf
 
     from .utils.config import get_config
-
+    
     wandb_mode = "online" if online_wandb else "offline"
     adaptation_type = "lora" if lora else "frozen"
     ckpt_saving = "save_ckpts_all_epochs" if ckpt_save_all else "save_best_ckpt_only"
     embedding_recomputing = "recomp_embs" if recomp_embs else "no_recomp_embs"
     model_retraining = "retrain_model" if retrain_model else "no_retrain_model"
     model_name = model if isinstance(model, str) else None
+    custom_name = None
 
     if model_name and model_name.startswith("custom:"):
         model = load_custom_model_from_file(model_name.split(":")[1])
         model_name = None
+        custom_name = model.name
 
     # Get Config
     cfg = get_config(
@@ -71,6 +73,8 @@ def benchmark(
         model_retraining,
         **kwargs,
     )
+
+    print_task_hyperparams(cfg, custom_name=custom_name)
 
     if not is_dataset_available(dataset):
         from . import download_datasets
@@ -159,7 +163,6 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
         mode=cfg.wandb.mode,
     )
     wandb_base_folder = f"|{task_type}| |{adaptation_type}| |{dataset_name}|"
-
     # Folder to save results
     res_folder = os.path.join(
         os.environ["THUNDER_BASE_DATA_FOLDER"],

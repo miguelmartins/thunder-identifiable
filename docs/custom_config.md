@@ -79,5 +79,5 @@ Here is a non exhaustive list of the parameters that you may want to override pe
 ### Transformation invariance
 | Name | Type | Description |
 |------|---|---|
-| task.pre_comp_emb_batch_size | int | Batch size for precomputing the embeddings. |
+| task.transformation_invariance_batch_size | int | Batch size for the transformations. |
 | task.nb_images | int | Number of images to use. |

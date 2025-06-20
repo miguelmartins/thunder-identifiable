@@ -1,6 +1,5 @@
 import json
 import numpy as np
-from omegaconf import DictConfig
 import os
 import random
 import torch
@@ -8,6 +7,79 @@ import wandb
 import contextlib
 import h5py
 from typing import Dict, Any, Optional
+
+from typing import Optional
+from omegaconf import DictConfig, OmegaConf
+import logging
+
+def print_task_hyperparams(
+    cfg: DictConfig,
+    custom_name: Optional[str] = None
+) -> None:
+    """
+    Print dataset, model, and only the task-specific hyper-parameters
+    from a full Hydra cfg, using classic ANSI colors.
+
+    If `custom_name` is provided, it will be used instead of
+    cfg.pretrained_model.model_name.
+    """
+    RESET     = "\033[0m"
+    BOLD      = "\033[1m"
+    UNDERLINE = "\033[4m"
+    BLUE      = "\033[34m"
+    WHITE     = "\033[37m"
+    GREEN     = "\033[32m"
+    RED       = "\033[31m"
+
+    task         = cfg.task.type
+    dataset_name = cfg.dataset.dataset_name
+
+    # Safe-fetch the model name, falling back to custom_name if given
+    if custom_name is not None:
+        model_label = custom_name
+    else:
+        model_label = OmegaConf.select(
+            cfg, "pretrained_model.model_name", default="<unknown model>"
+        )
+
+    # Choose where hyperparams live
+    task_cfg = cfg.task if task not in ["linear_probing", "segmentation"] else cfg.adaptation
+
+    sep = "-" * 60
+
+    logging.info(f"\n{BOLD}{BLUE}\U0001F680  Experiment Info{RESET}")
+    print(sep)
+    print(f"{BLUE}Task   :{RESET} {WHITE}{task}{RESET}")
+    print(f"{BLUE}Dataset:{RESET} {WHITE}{dataset_name}{RESET}")
+    print(f"{BLUE}Model  :{RESET} {WHITE}{model_label}{RESET}")
+    print(sep)
+
+    print(f"\n{BOLD}{BLUE}Hyper-parameters{RESET}\n{sep}")
+
+    # Fields to skip
+    skip = {"compatible_adaptation_types", "base_embeddings_folder"}
+    if task not in ["linear_probing", "segmentation"]:
+        skip.add("type")
+
+    # Print each hyperparam
+    for key, val in task_cfg.items():
+        if key in skip:
+            continue
+
+        # Special PGD block header
+        if task == "adversarial_attack" and key == "attack":
+            print(f"\n{RED}{BOLD}PGD attack hyper-parameters{RESET}")
+
+        # Nested dicts
+        if isinstance(val, (DictConfig, dict)):
+            print(f"{BLUE}{BOLD}{key}{RESET}:")
+            for subkey, subval in val.items():
+                print(f"  {WHITE}{subkey}{RESET}: {subval}")
+        else:
+            print(f"{BLUE}{key}{RESET}: {WHITE}{val}{RESET}")
+
+    print(sep)
+
 
 
 def get_hyperaparams_dict(cfg: DictConfig) -> dict:
