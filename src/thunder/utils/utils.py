@@ -1,4 +1,5 @@
 import json
+import logging
 import numpy as np
 import os
 import random
@@ -172,8 +173,10 @@ def save_outputs(res_folder: str, outputs: dict) -> None:
     :param res_folder: path where to save outputs.
     :param outputs: dictionary of outputs.
     """
-    with open(os.path.join(res_folder, "outputs.json"), "w") as outfile:
+    output_filename = os.path.join(res_folder, "outputs.json")
+    with open(output_filename, "w") as outfile:
         json.dump(outputs, outfile)
+    logging.info(f"Outputs saved at {output_filename}")
 
 
 def set_seed(seed: int) -> None:
