@@ -1,7 +1,7 @@
 
 # Tile-level Histopathology image Understanding benchmark
 
-<img src="docs/banner.png" />
+<img src="https://raw.githubusercontent.com/MICS-Lab/thunder/main/docs/banner.png" />
 
 <div align="center">
 
@@ -19,7 +19,7 @@ We introduce **THUNDER**, a comprehensive benchmark designed to rigorously compa
 
 We propose a benchmark to compare and study foundation models across three axes: (i) downstream task performance, (ii) feature space comparisons, and (iii) uncertainty and robustness. Our current version integrates 23 foundation models, vision-only, vision-language, trained on pathology or natural images, on 16 datasets covering different magnifications and organs. THUNDER also supports the use of new user-defined models for direct comparisons.
 
-<img src="docs/overview.png" />
+<img src="https://raw.githubusercontent.com/MICS-Lab/thunder/main/docs/overview.png" />
 
 
 ## Usage
@@ -73,3 +73,10 @@ export THUNDER_BASE_DATA_FOLDER="/path/to/your/data/folder"
 ```
 
 Replace `/path/to/your/data/folder` with your desired storage directory.
+
+If you want to use the CONCH and MUSK models, you should install them as follows:
+
+```console
+pip install git+https://github.com/Mahmoodlab/CONCH.git # CONCH
+pip install git+https://github.com/lilab-stanford/MUSK.git # MUSK
+```

@@ -354,7 +354,12 @@ def get_from_open_clip(ckpt_path: str):
 
     :param ckpt_path: path to the stored checkpoint.
     """
-    from conch.open_clip_custom import create_model_from_pretrained
+    try:
+        from conch.open_clip_custom import create_model_from_pretrained
+    except ImportError:
+        raise ImportError(
+            "In order to use CONCH, please run the following: 'pip install git+https://github.com/Mahmoodlab/CONCH.git'"
+        )
 
     model, transform = create_model_from_pretrained("conch_ViT-B-16", ckpt_path)
 
@@ -417,7 +422,12 @@ def get_musk(ckpt_path: str):
 
     :ckpt_path: path to the stored checkpoint.
     """
-    from musk import utils, modeling
+    try:
+        from musk import utils, modeling
+    except ImportError:
+        raise ImportError(
+            "In order to use MUSK, please run the following: 'pip install git+https://github.com/lilab-stanford/MUSK.git'"
+        )
     from timm.data.constants import IMAGENET_INCEPTION_MEAN, IMAGENET_INCEPTION_STD
     from torchvision import transforms
 

@@ -4,6 +4,10 @@ setup(
     name="thundr",
     version="0.1.0",
     description="THUNDER: Tile-level Histopathology image UNDERstanding benchmark",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
+    url="https://github.com/MICS-Lab/thunder",
+    license="CC-BY-4.0",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     install_requires=[
@@ -39,8 +43,6 @@ setup(
         "wilds==2.0.0",
         "kornia==0.8.0",
         "typer==0.15.3",
-        "conch @ git+https://github.com/Mahmoodlab/CONCH.git",
-        "musk @ git+https://github.com/lilab-stanford/MUSK.git",
     ],
     extras_require={
         "dev": ["pytest"],
