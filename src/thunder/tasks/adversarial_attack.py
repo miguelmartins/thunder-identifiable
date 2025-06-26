@@ -91,7 +91,7 @@ def adversarial_attack(
             f"Checkpoint file not found at {linear_ckpt_path}. Please train a linear probe first."
         )
 
-    ckpt = torch.load(linear_ckpt_path)
+    ckpt = torch.load(linear_ckpt_path, weights_only=True)
     state_dict = ckpt["task_specific_model"]
     out_features, in_features = state_dict["linear.weight"].shape
 
