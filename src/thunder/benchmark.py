@@ -119,9 +119,6 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
     from .utils.dice_loss import multiclass_dice_loss
     from .utils.utils import set_seed
 
-    # Setting the random seed
-    set_seed(UtilsConstants.DEFAULT_SEED.value)
-
     # Getting device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -176,6 +173,9 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
     if os.path.exists(res_folder):
         shutil.rmtree(res_folder)
     os.makedirs(res_folder)
+
+    # Setting the random seed
+    set_seed(UtilsConstants.DEFAULT_SEED.value)
 
     if task_type in ["linear_probing", "segmentation"]:
         # Model checkpoints folder
