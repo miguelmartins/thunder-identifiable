@@ -581,27 +581,28 @@ def train_eval(
                         outputs[i], (label.shape[1], label.shape[2]), mode="bilinear"
                     )
 
-        # Applying masking (removing pixels where gt == -1)
-        if task_type == "segmentation":
-            unmasked_label = [l != -1 for l in label]
-            label = [l[u] for l, u in zip(label, unmasked_label)]
-        else:
+        if task_type == "linear_probing":
             label = label.view(-1)
         loss = 0
         for i in range(len(outputs)):
             output = outputs[i]
-            out = []
             if task_type == "segmentation":
-                for o, m in zip(output, unmasked_label):
-                    out.append(
-                        torch.cat(
-                            [o[c][m].unsqueeze(-1) for c in range(o.shape[0])], dim=-1
+                # Applying masking (removing pixels where gt == -1)
+                curr_loss = criterion(output, label, label != -1)
+
+                if comp_metrics:
+                    unmasked_label = [l != -1 for l in label]
+                    label = [l[u] for l, u in zip(label, unmasked_label)]
+                    out = []
+                    for o, m in zip(output, unmasked_label):
+                        out.append(
+                            torch.cat(
+                                [o[c][m].unsqueeze(-1) for c in range(o.shape[0])],
+                                dim=-1,
+                            )
                         )
-                    )
-                curr_loss = sum([criterion(o, l) for o, l in zip(out, label)]) / len(
-                    out
-                )
             else:
+                out = []
                 for c in range(output.shape[1]):
                     out.append(output[:, c].unsqueeze(-1))
                 out = torch.cat(out, dim=-1)

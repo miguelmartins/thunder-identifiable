@@ -1,27 +1,41 @@
+import torch
 import torch.nn.functional as F
 
 
 # Adapted from https://medium.com/data-scientists-diary/implementation-of-dice-loss-vision-pytorch-7eef1e438f68
-def multiclass_dice_loss(pred, target, smooth=1):
+def multiclass_dice_loss(
+    pred: torch.Tensor, target: torch.Tensor, mask: torch.Tensor, smooth: float = 1
+) -> torch.Tensor:
     """
     Computes Dice Loss for multi-class segmentation.
-    :param pred: Tensor of predictions (batch_size, C, H, W).
-    :param target: One-hot encoded ground truth (batch_size, C, H, W).
+    :param pred: Tensor of predictions (B, C, H, W).
+    :param target: Ground truth labels (B, H, W).
+    :param mask: Mask to apply to pred and target.
     :param smooth: Smoothing factor.
 
     :return: Scalar Dice Loss.
     """
-    pred = F.softmax(pred, dim=1)  # Convert logits to probabilities
+
+    pred = F.softmax(pred, dim=1)  # Converting logits to probabilities
     num_classes = pred.shape[1]  # Number of classes (C)
-    dice = 0  # Initialize Dice loss accumulator
 
-    for c in range(num_classes):  # Loop through each class
-        pred_c = pred[:, c]  # Predictions for class c
-        target_c = (target == c).long()  # Ground truth for class c
+    target[~mask] = (
+        num_classes  # Adding a dummy class to account for masked pixels (-1 label values)
+    )
+    target = F.one_hot(
+        target, num_classes=num_classes + 1
+    )  # Creating a tensor of one-hot target vectors
+    target = target[..., :-1]  # Removing dummy class channel
+    target = target.permute((0, 3, 1, 2))
+    mask = mask.unsqueeze(1)
 
-        intersection = (pred_c * target_c).sum()  # Element-wise multiplication
-        union = pred_c.sum() + target_c.sum()  # Sum of all pixels
+    intersection = (pred * target * mask).sum(dim=(2, 3))  # Element-wise multiplication
+    union = (pred * mask).sum(dim=(2, 3)) + (target * mask).sum(
+        dim=(2, 3)
+    )  # Sum of all pixels
 
-        dice += (2.0 * intersection + smooth) / (union + smooth)  # Per-class Dice score
-
-    return 1 - dice.mean() / num_classes  # Average Dice Loss across classes
+    dice = (2.0 * intersection + smooth) / (
+        union + smooth
+    )  # Per-class and per-image Dice score
+    dice = dice.mean(dim=0)  # Averaging Dice loss across images
+    return 1 - dice.mean()  # Averaging Dice Loss across classes
