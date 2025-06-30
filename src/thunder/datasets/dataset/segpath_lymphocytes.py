@@ -1,3 +1,5 @@
+import os
+
 def download_segpath_lymphocytes(root_folder: str):
     from ..utils import (
         download_from_url,
