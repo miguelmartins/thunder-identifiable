@@ -118,8 +118,8 @@ def log_loss(
     :param epoch: training epoch.
     """
     logs = {
-        f"{wandb_base_folder}/{split}_lr_{lr}_weight_decay_loss_"
-        f"{weight_decay}": np.array(losses).mean().item()
+        f"{wandb_base_folder}/{split}_lr_{lr}_weight_decay_{weight_decay}_loss":
+        np.array(losses).mean().item()
     }
     wandb.log(logs, step=epoch)
 
