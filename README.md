@@ -51,6 +51,15 @@ In order to reproduce the above example you can run the following command:
 thunder benchmark phikon break_his knn
 ```
 
+### Extracting embeddings with any supported foundation model (API Usage)
+We also provide a [`get_model_from_name`](https://mics-lab.github.io/thunder/api/#thunder.models.get_model_from_name) function through our API to extract embeddings using any foundation model we support on your own data. Below is an example if you want to get the Pytorch callable, transforms and function to extract embeddings for `uni2h`:
+
+```python
+from thunder.models import get_model_from_name
+
+model, transform, get_embeddings = get_model_from_name("uni2h", device="cuda")
+```
+
 ## Installing thunder
 
 Code tested with Python 3.10. To replicate, you can create the following conda environment and activate it,
