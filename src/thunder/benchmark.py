@@ -294,8 +294,9 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
             )
 
             if cfg.embedding_recomputing.recompute_embeddings:
-                emb_info_str += " Re-computing them as explictly requested."
+                emb_info_str += " Deleting pre-computed embeddings and re-computing them as explictly requested."
                 comp_embs = True
+                shutil.rmtree(embeddings_folder)
             else:
                 emb_info_str += " Not re-computing them."
                 comp_embs = False
