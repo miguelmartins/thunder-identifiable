@@ -29,13 +29,15 @@ def multiclass_dice_loss(
     target = target.permute((0, 3, 1, 2))
     mask = mask.unsqueeze(1)
 
-    intersection = (pred * target * mask).sum(dim=(2, 3))  # Element-wise multiplication
-    union = (pred * mask).sum(dim=(2, 3)) + (target * mask).sum(
-        dim=(2, 3)
+    intersection = (pred * target * mask).sum(
+        dim=(0, 2, 3)
+    )  # Element-wise multiplication
+    union = (pred * mask).sum(dim=(0, 2, 3)) + (target * mask).sum(
+        dim=(0, 2, 3)
     )  # Sum of all pixels
 
     dice = (2.0 * intersection + smooth) / (
         union + smooth
     )  # Per-class and per-image Dice score
-    dice = dice.mean(dim=0)  # Averaging Dice loss across images
+
     return 1 - dice.mean()  # Averaging Dice Loss across classes
