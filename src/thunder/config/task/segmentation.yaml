@@ -1,3 +1,4 @@
 type: segmentation
 compatible_adaptation_types: ["frozen", "lora"]
 base_embeddings_folder: ${oc.env:THUNDER_BASE_DATA_FOLDER}/embeddings/
+no_bg_only_weight_test: 16.0

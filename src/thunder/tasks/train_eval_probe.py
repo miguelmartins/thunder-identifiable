@@ -664,14 +664,24 @@ def train_eval(
                     for o, l in zip(all_out[i], all_label)
                     if len(l) > 0
                 ]
-                weights = [len(l) for l in all_label if len(l) > 0]
+                weights = np.array([len(l) for l in all_label if len(l) > 0]).astype(
+                    np.float32
+                )
 
-                # Averagin per-image performance and computing confidence intervals
+                # Finding background-only masks
+                bg_only = np.array([l.sum().item() == 0 for l in all_label])
+                freq_bg_only = bg_only.sum().item() / len(bg_only)
+                no_bg_only_weight = max(
+                    1.0, freq_bg_only * cfg.task.no_bg_only_weight_test
+                )
+                weights[~bg_only] *= no_bg_only_weight
+
+                # Averaging per-image performance and computing confidence intervals
                 all_metrics_out = {}
                 for key in all_metrics[0]:
                     metric_vals = [d[key]["metric_score"] for d in all_metrics]
                     all_metrics_out[key] = compute_metric(
-                        weights,
+                        weights.tolist(),
                         metric_vals,
                         lambda weights, metric_vals: np.average(
                             metric_vals, weights=weights
