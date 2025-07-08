@@ -1,14 +1,15 @@
-from collections import defaultdict
 import json
-import numpy as np
-import plotly.express as px
 import os
-import plotly
 import random
+from collections import defaultdict
+
+import numpy as np
+import plotly
+import plotly.express as px
 import torch
 import torch.nn.functional as F
-from tqdm import tqdm
 import wandb
+from tqdm import tqdm
 
 from ..utils.alignment_metrics import AlignmentMetrics
 from ..utils.constants import ModelConstants

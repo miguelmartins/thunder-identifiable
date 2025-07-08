@@ -1,40 +1,32 @@
-from collections.abc import Callable
 import json
-import numpy as np
-from omegaconf import OmegaConf, DictConfig
 import os
-from timm.models.vision_transformer import VisionTransformer
+from collections.abc import Callable
+from operator import attrgetter
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import wandb
+from omegaconf import DictConfig, OmegaConf
+from timm.models.vision_transformer import VisionTransformer
 from torch.nn.modules.loss import _Loss
 from torch.optim.optimizer import Optimizer
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
-import wandb
-from operator import attrgetter
 
-from ..models.adapters import init_adapters, get_model_lora_names
+from ..models.adapters import get_model_lora_names, init_adapters
 from ..models.pretrained_models import load_pretrained_model
-from ..models.task_specific_models import (
-    ClassificationHead,
-    GridSearchClassificationHead,
-    GridSearchMaskTransformer,
-    MaskTransformer,
-)
-
-from ..utils.constants import UtilsConstants
+from ..models.task_specific_models import (ClassificationHead,
+                                           GridSearchClassificationHead,
+                                           GridSearchMaskTransformer,
+                                           MaskTransformer)
 from ..utils.calibration_metrics import compute_calibration_metrics
+from ..utils.constants import UtilsConstants
 from ..utils.data import PatchDataset
 from ..utils.downstream_metrics import compute_metric, compute_metrics
-from ..utils.utils import (
-    get_hyperaparams_dict,
-    local_seed,
-    log_loss,
-    log_metrics,
-    save_outputs,
-    wb_mask,
-)
+from ..utils.utils import (get_hyperaparams_dict, local_seed, log_loss,
+                           log_metrics, save_outputs, wb_mask)
 
 
 def train_probe(

@@ -6,9 +6,9 @@ from typing import Callable, Dict, Tuple, Union
 import numpy as np
 import torch
 import torchvision.transforms.functional as F
+import torchvision.transforms.v2 as v2
 from PIL import Image
 from torchvision.transforms import ColorJitter, InterpolationMode
-import torchvision.transforms.v2 as v2
 
 try:
     import kornia.morphology as _kmorph

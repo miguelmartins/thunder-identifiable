@@ -1,9 +1,5 @@
 def download_tcga_tils(root_folder: str):
-    from ..utils import (
-        download_from_url,
-        untar_file,
-        remove_symlinks,
-    )
+    from ..utils import download_from_url, remove_symlinks, untar_file
 
     url = "https://zenodo.org/api/records/6604094/files/TCGA-TILs.tar.gz/content"
     download_from_url(url, f"{root_folder}/content")
@@ -21,15 +17,10 @@ def create_splits_tcga_tils(base_folder: str, dataset_cfg: dict) -> None:
 
     import os
 
-    from ..data_splits import (
-        check_dataset,
-        create_few_shot_training_data,
-        init_dict,
-        save_dict,
-        sorted_listdir,
-    )
     from ...utils.constants import UtilsConstants
     from ...utils.utils import set_seed
+    from ..data_splits import (check_dataset, create_few_shot_training_data,
+                               init_dict, save_dict, sorted_listdir)
 
     # Setting the random seed
     set_seed(UtilsConstants.DEFAULT_SEED.value)

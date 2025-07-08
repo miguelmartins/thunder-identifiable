@@ -90,6 +90,7 @@ def extract_value_from_large_json(
 
 def gather_results():
     import glob
+
     import pandas as pd
 
     logging.info("Gathering results...")

@@ -22,9 +22,9 @@ def load_custom_model_from_file(python_file: str):
 
     :param python_file: path to the python file.
     """
-    import sys
     import importlib
     import inspect
+    import sys
 
     from .pretrained_models import PretrainedModel
 

@@ -1,9 +1,8 @@
 # Code adapted from https://github.com/minyoungg/platonic-rep/blob/main/metrics.py
 
+import numpy as np
 import torch
 import torchaudio.functional as TAF
-
-import numpy as np
 from sklearn.cross_decomposition import CCA
 
 

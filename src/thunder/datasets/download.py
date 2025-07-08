@@ -1,10 +1,10 @@
 import logging
 import os
-from typing import List, Union
 from pathlib import Path
+from typing import List, Union
 
-from .dataset import *
 from .data_splits import generate_splits
+from .dataset import *
 
 
 def download_datasets(datasets: Union[List[str], str], make_splits: bool = False):

@@ -15,12 +15,8 @@ import torch.nn.functional as F
 import torchvision.transforms as T
 import wandb
 from omegaconf import DictConfig
-from sklearn.metrics import (
-    accuracy_score,
-    balanced_accuracy_score,
-    f1_score,
-    jaccard_score,
-)
+from sklearn.metrics import (accuracy_score, balanced_accuracy_score, f1_score,
+                             jaccard_score)
 from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
 

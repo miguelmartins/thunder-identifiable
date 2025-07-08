@@ -1,11 +1,6 @@
 def download_bach(root_folder: str):
-    from ..utils import (
-        download_from_url,
-        unzip_file,
-        untar_file,
-        ungzip_file,
-        remove_symlinks,
-    )
+    from ..utils import (download_from_url, remove_symlinks, ungzip_file,
+                         untar_file, unzip_file)
 
     urls = [
         "https://zenodo.org/api/records/3632035/files/ICIAR2018_BACH_Challenge.zip/content",
@@ -24,21 +19,17 @@ def create_splits_bach(base_folder: str, dataset_cfg: dict) -> None:
     :param base_folder: path to the main folder storing datasets.
     :param dataset_cfg: dataset-specific config.
     """
-    from collections import defaultdict
     import math
     import os
-    import pandas as pd
+    from collections import defaultdict
     from pathlib import Path
 
-    from ..data_splits import (
-        check_dataset,
-        create_few_shot_training_data,
-        init_dict,
-        save_dict,
-        sorted_listdir,
-    )
+    import pandas as pd
+
     from ...utils.constants import UtilsConstants
     from ...utils.utils import set_seed
+    from ..data_splits import (check_dataset, create_few_shot_training_data,
+                               init_dict, save_dict, sorted_listdir)
 
     # Patient details are derived from ICIAR2018_BACH_dataset_micro_patient.xlsx
     # downloaded from https://www.dropbox.com/scl/fo/efjnzcjydcjc4ebz1py7n/AIQyydtZTQcAFlLRxsEQhCU?dl=0&e=5&preview=ICIAR2018_BACH_dataset_micro_patient.xlsx&rlkey=w5ebtg9dlwrk57663chvodzy6&st=k0dfgjck

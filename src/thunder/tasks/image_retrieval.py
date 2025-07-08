@@ -1,12 +1,13 @@
-from collections import defaultdict
 import json
 import logging
+import os
+from collections import defaultdict
+
 import matplotlib.pyplot as plt
 import numpy as np
-import os
+import wandb
 from PIL import Image
 from tqdm import tqdm
-import wandb
 
 from ..utils.data import get_data
 from ..utils.downstream_metrics import compute_metrics

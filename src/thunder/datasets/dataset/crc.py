@@ -1,8 +1,5 @@
 def download_crc(root_folder: str):
-    from ..utils import (
-        download_from_url,
-        unzip_file,
-    )
+    from ..utils import download_from_url, unzip_file
 
     download_from_url(
         "https://zenodo.org/api/records/1214456/files/NCT-CRC-HE-100K.zip/content",
@@ -26,19 +23,15 @@ def create_splits_crc(base_folder: str, dataset_cfg: dict) -> None:
     :param dataset_cfg: dataset-specific config.
     """
 
-    import numpy as np
     import os
     import random
 
-    from ..data_splits import (
-        check_dataset,
-        create_few_shot_training_data,
-        get_data_from_set,
-        init_dict,
-        save_dict,
-    )
+    import numpy as np
+
     from ...utils.constants import UtilsConstants
     from ...utils.utils import set_seed
+    from ..data_splits import (check_dataset, create_few_shot_training_data,
+                               get_data_from_set, init_dict, save_dict)
 
     # Setting the random seed
     set_seed(UtilsConstants.DEFAULT_SEED.value)

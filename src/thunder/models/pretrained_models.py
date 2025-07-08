@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
-from omegaconf import DictConfig, OmegaConf
 from pathlib import Path
+
 import timm
+import torch
+from omegaconf import DictConfig, OmegaConf
 from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
-import torch
 from transformers import AutoImageProcessor, AutoModel
 
 from ..utils.constants import ModelConstants
@@ -47,8 +48,8 @@ def load_pretrained_model(cfg: DictConfig, adaptation_type: str, device: str):
     """
 
     if cfg.pretrained_model.type == "python_script":
-        import sys
         import importlib
+        import sys
 
         spec = importlib.util.spec_from_file_location(
             "custom_model", cfg.pretrained_model.python_script
@@ -423,12 +424,13 @@ def get_musk(ckpt_path: str):
     :ckpt_path: path to the stored checkpoint.
     """
     try:
-        from musk import utils, modeling
+        from musk import modeling, utils
     except ImportError:
         raise ImportError(
             "In order to use MUSK, please run the following: 'pip install git+https://github.com/lilab-stanford/MUSK.git'"
         )
-    from timm.data.constants import IMAGENET_INCEPTION_MEAN, IMAGENET_INCEPTION_STD
+    from timm.data.constants import (IMAGENET_INCEPTION_MEAN,
+                                     IMAGENET_INCEPTION_STD)
     from torchvision import transforms
 
     # Model

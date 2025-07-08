@@ -1,9 +1,10 @@
-from collections import defaultdict
 import copy
 import json
-import numpy as np
-import os
 import logging
+import os
+from collections import defaultdict
+
+import numpy as np
 from tqdm import tqdm
 
 from ..tasks.image_retrieval import topk_retrieval

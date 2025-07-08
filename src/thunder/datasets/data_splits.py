@@ -1,8 +1,8 @@
-from collections import defaultdict
-from collections.abc import Callable
 import logging
 import os
 import random
+from collections import defaultdict
+from collections.abc import Callable
 from pathlib import Path
 from typing import List, Union
 
@@ -79,25 +79,17 @@ def generate_splits_for_dataset(dataset_name: str) -> None:
         dataset_name (str): The name of the dataset to generate splits for.
     """
     from omegaconf import OmegaConf
+
     from ..utils.constants import DatasetConstants
-    from .dataset import (
-        create_splits_bach,
-        create_splits_bracs,
-        create_splits_break_his,
-        create_splits_ccrcc,
-        create_splits_crc,
-        create_splits_esca,
-        create_splits_mhist,
-        create_splits_patch_camelyon,
-        create_splits_tcga_crc_msi,
-        create_splits_tcga_tils,
-        create_splits_tcga_uniform,
-        create_splits_wilds,
-        create_splits_ocelot,
-        create_splits_pannuke,
-        create_splits_segpath_epithelial,
-        create_splits_segpath_lymphocytes,
-    )
+    from .dataset import (create_splits_bach, create_splits_bracs,
+                          create_splits_break_his, create_splits_ccrcc,
+                          create_splits_crc, create_splits_esca,
+                          create_splits_mhist, create_splits_ocelot,
+                          create_splits_pannuke, create_splits_patch_camelyon,
+                          create_splits_segpath_epithelial,
+                          create_splits_segpath_lymphocytes,
+                          create_splits_tcga_crc_msi, create_splits_tcga_tils,
+                          create_splits_tcga_uniform, create_splits_wilds)
 
     DATASET_TO_FUNCTION = {
         # Classification
@@ -237,8 +229,8 @@ def check_dataset_md5(data_splits: dict, dataset_cfg: dict) -> None:
     :param data_splits: data splits dictionary.
     :param dataset_cfg: dataset-specific config.
     """
-    import json
     import hashlib
+    import json
 
     if hasattr(dataset_cfg, "md5sum"):
         expected_md5 = dataset_cfg["md5sum"]

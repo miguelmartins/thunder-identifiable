@@ -1,7 +1,8 @@
 import os
+from typing import List
+
 import typer
 from typing_extensions import Annotated
-from typing import List
 
 app = typer.Typer()
 

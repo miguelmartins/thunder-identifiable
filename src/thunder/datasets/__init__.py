@@ -1,19 +1,6 @@
-from .download import download_datasets
 from .data_splits import generate_splits
-
-from .dataset import bach
-from .dataset import bracs
-from .dataset import break_his
-from .dataset import ccrcc
-from .dataset import crc
-from .dataset import esca
-from .dataset import mhist
-from .dataset import ocelot
-from .dataset import pannuke
-from .dataset import patch_camelyon
-from .dataset import segpath_epithelial
-from .dataset import segpath_lymphocytes
-from .dataset import tcga_crc_msi
-from .dataset import tcga_tils
-from .dataset import tcga_uniform
-from .dataset import wilds
+from .dataset import (bach, bracs, break_his, ccrcc, crc, esca, mhist, ocelot,
+                      pannuke, patch_camelyon, segpath_epithelial,
+                      segpath_lymphocytes, tcga_crc_msi, tcga_tils,
+                      tcga_uniform, wilds)
+from .download import download_datasets

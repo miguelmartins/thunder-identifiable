@@ -1,12 +1,13 @@
 import os
 import tempfile
+
 import pytest
 
 
 def test_task_pre_computing_embeddings(temp_env_dir):
     """Tests the benchmark on break_his for the pre-computing embeddings task."""
     # Download the dataset
-    from thunder import download_datasets, download_models, benchmark
+    from thunder import benchmark, download_datasets, download_models
 
     download_datasets(["break_his"], make_splits=True)
     download_models("phikon")
@@ -73,7 +74,7 @@ def test_task_linear_probing(temp_env_dir):
 def test_task_knn(temp_env_dir):
     """Tests the benchmark on break_his for the knn task."""
     # Download the dataset
-    from thunder import download_datasets, download_models, benchmark
+    from thunder import benchmark, download_datasets, download_models
 
     download_datasets(["break_his"], make_splits=True)
     download_models("phikon")

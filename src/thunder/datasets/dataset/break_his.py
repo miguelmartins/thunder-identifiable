@@ -1,8 +1,5 @@
 def download_break_his(root_folder: str):
-    from ..utils import (
-        download_from_url,
-        untar_file,
-    )
+    from ..utils import download_from_url, untar_file
 
     download_from_url(
         "http://www.inf.ufpr.br/vri/databases/BreaKHis_v1.tar.gz",
@@ -20,15 +17,10 @@ def create_splits_break_his(base_folder: str, dataset_cfg: dict) -> None:
     """
     import os
 
-    from ..data_splits import (
-        check_dataset,
-        create_few_shot_training_data,
-        init_dict,
-        save_dict,
-        sorted_listdir,
-    )
     from ...utils.constants import UtilsConstants
     from ...utils.utils import set_seed
+    from ..data_splits import (check_dataset, create_few_shot_training_data,
+                               init_dict, save_dict, sorted_listdir)
 
     # Setting the random seed
     set_seed(UtilsConstants.DEFAULT_SEED.value)

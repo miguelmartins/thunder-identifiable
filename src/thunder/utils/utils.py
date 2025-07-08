@@ -1,22 +1,18 @@
+import contextlib
 import json
 import logging
-import numpy as np
 import os
 import random
+from typing import Any, Dict, Optional
+
+import h5py
+import numpy as np
 import torch
 import wandb
-import contextlib
-import h5py
-from typing import Dict, Any, Optional
-
-from typing import Optional
 from omegaconf import DictConfig, OmegaConf
-import logging
 
-def print_task_hyperparams(
-    cfg: DictConfig,
-    custom_name: Optional[str] = None
-) -> None:
+
+def print_task_hyperparams(cfg: DictConfig, custom_name: Optional[str] = None) -> None:
     """
     Print dataset, model, and only the task-specific hyper-parameters
     from a full Hydra cfg, using classic ANSI colors.
@@ -24,15 +20,15 @@ def print_task_hyperparams(
     If `custom_name` is provided, it will be used instead of
     cfg.pretrained_model.model_name.
     """
-    RESET     = "\033[0m"
-    BOLD      = "\033[1m"
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
-    BLUE      = "\033[34m"
-    WHITE     = "\033[37m"
-    GREEN     = "\033[32m"
-    RED       = "\033[31m"
+    BLUE = "\033[34m"
+    WHITE = "\033[37m"
+    GREEN = "\033[32m"
+    RED = "\033[31m"
 
-    task         = cfg.task.type
+    task = cfg.task.type
     dataset_name = cfg.dataset.dataset_name
 
     # Safe-fetch the model name, falling back to custom_name if given
@@ -44,11 +40,13 @@ def print_task_hyperparams(
         )
 
     # Choose where hyperparams live
-    task_cfg = cfg.task if task not in ["linear_probing", "segmentation"] else cfg.adaptation
+    task_cfg = (
+        cfg.task if task not in ["linear_probing", "segmentation"] else cfg.adaptation
+    )
 
     sep = "-" * 60
 
-    logging.info(f"\n{BOLD}{BLUE}\U0001F680  Experiment Info{RESET}")
+    logging.info(f"\n{BOLD}{BLUE}\U0001f680  Experiment Info{RESET}")
     print(sep)
     print(f"{BLUE}Task   :{RESET} {WHITE}{task}{RESET}")
     print(f"{BLUE}Dataset:{RESET} {WHITE}{dataset_name}{RESET}")
@@ -80,7 +78,6 @@ def print_task_hyperparams(
             print(f"{BLUE}{key}{RESET}: {WHITE}{val}{RESET}")
 
     print(sep)
-
 
 
 def get_hyperaparams_dict(cfg: DictConfig) -> dict:
@@ -118,8 +115,11 @@ def log_loss(
     :param epoch: training epoch.
     """
     logs = {
-        f"{wandb_base_folder}/{split}_lr_{lr}_weight_decay_{weight_decay}_loss":
-        np.array(losses).mean().item()
+        f"{wandb_base_folder}/{split}_lr_{lr}_weight_decay_{weight_decay}_loss": np.array(
+            losses
+        )
+        .mean()
+        .item()
     }
     wandb.log(logs, step=epoch)
 

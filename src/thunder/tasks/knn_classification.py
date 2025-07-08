@@ -1,7 +1,8 @@
 import json
 import logging
-import numpy as np
 import os
+
+import numpy as np
 
 from ..tasks.image_retrieval import topk_retrieval
 from ..utils.utils import log_metrics, save_outputs

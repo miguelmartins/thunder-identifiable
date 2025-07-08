@@ -1,10 +1,8 @@
 import os
 
+
 def download_segpath_lymphocytes(root_folder: str):
-    from ..utils import (
-        download_from_url,
-        untar_file,
-    )
+    from ..utils import download_from_url, untar_file
 
     url = "https://zenodo.org/api/records/7412529/files/CD3CD20_fileinfo.csv/content"
     download_from_url(url, f"{root_folder}/content")
@@ -26,10 +24,7 @@ def create_splits_segpath_lymphocytes(base_folder: str, dataset_cfg: dict) -> No
     """
     import os
 
-    from ..data_splits import (
-        check_dataset,
-        save_dict,
-    )
+    from ..data_splits import check_dataset, save_dict
     from .segpath_epithelial import segpath
 
     # Getting data splist dict

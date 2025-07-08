@@ -1,8 +1,5 @@
 def download_ccrcc(root_folder: str):
-    from ..utils import (
-        download_from_url,
-        unzip_file,
-    )
+    from ..utils import download_from_url, unzip_file
 
     download_from_url(
         "https://zenodo.org/api/records/7898308/files/tissue_classification.zip/content",
@@ -18,19 +15,14 @@ def create_splits_ccrcc(base_folder: str, dataset_cfg: dict) -> None:
     :param base_folder: path to the main folder storing datasets.
     :param dataset_cfg: dataset-specific config.
     """
-    from collections import defaultdict
     import os
     import random
+    from collections import defaultdict
 
-    from ..data_splits import (
-        check_dataset,
-        create_few_shot_training_data,
-        init_dict,
-        save_dict,
-        sorted_listdir,
-    )
     from ...utils.constants import UtilsConstants
     from ...utils.utils import set_seed
+    from ..data_splits import (check_dataset, create_few_shot_training_data,
+                               init_dict, save_dict, sorted_listdir)
 
     # Setting the random seed
     set_seed(UtilsConstants.DEFAULT_SEED.value)

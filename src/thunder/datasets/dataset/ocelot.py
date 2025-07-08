@@ -1,8 +1,5 @@
 def download_ocelot(root_folder: str):
-    from ..utils import (
-        download_from_url,
-        unzip_file,
-    )
+    from ..utils import download_from_url, unzip_file
 
     urt = "https://zenodo.org/api/records/8417503/files/ocelot2023_v1.0.1.zip/content"
     download_from_url(urt, f"{root_folder}/content")
@@ -19,13 +16,8 @@ def create_splits_ocelot(base_folder: str, dataset_cfg: dict) -> None:
 
     import os
 
-    from ..data_splits import (
-        check_dataset,
-        compute_patches,
-        init_dict,
-        save_dict,
-        sorted_listdir,
-    )
+    from ..data_splits import (check_dataset, compute_patches, init_dict,
+                               save_dict, sorted_listdir)
 
     # Initializing dict
     ocelot_data_splits = init_dict()

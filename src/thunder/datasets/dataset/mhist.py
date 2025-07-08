@@ -2,9 +2,7 @@ import logging
 
 
 def download_mhist(root_folder: str):
-    from ..utils import (
-        unzip_file,
-    )
+    from ..utils import unzip_file
 
     logging.info(
         "In order to download the MHIST dataset, you will have to visit https://bmirds.github.io/MHIST/#accessing-dataset and fill in the data access form. After this, you should receive an email with links to download the required data. This procedure should only take you a couple of minutes."
@@ -57,17 +55,14 @@ def create_splits_mhist(base_folder: str, dataset_cfg: dict) -> None:
     """
 
     import os
-    import pandas as pd
     import random
 
-    from ..data_splits import (
-        check_dataset,
-        create_few_shot_training_data,
-        init_dict,
-        save_dict,
-    )
+    import pandas as pd
+
     from ...utils.constants import UtilsConstants
     from ...utils.utils import set_seed
+    from ..data_splits import (check_dataset, create_few_shot_training_data,
+                               init_dict, save_dict)
 
     # Setting the random seed
     set_seed(UtilsConstants.DEFAULT_SEED.value)

@@ -1,8 +1,5 @@
 def download_patch_camelyon(root_folder: str):
-    from ..utils import (
-        download_from_url,
-        ungzip_file,
-    )
+    from ..utils import download_from_url, ungzip_file
 
     urls = [
         (
@@ -43,16 +40,17 @@ def create_splits_patch_camelyon(base_folder: str, dataset_cfg: dict) -> None:
     :param base_folder: path to the main folder storing datasets.
     :param dataset_cfg: dataset-specific config.
     """
+    import os
+    import random
     from collections import defaultdict
+
     import h5py
     import numpy as np
-    import os
     import pandas as pd
-    import random
 
-    from ..data_splits import check_dataset, init_dict, save_dict
     from ...utils.constants import UtilsConstants
     from ...utils.utils import set_seed
+    from ..data_splits import check_dataset, init_dict, save_dict
 
     # Setting the random seed
     set_seed(UtilsConstants.DEFAULT_SEED.value)

@@ -11,16 +11,13 @@ def create_splits_wilds(base_folder: str, dataset_cfg: dict) -> None:
     """
 
     import os
+
     from wilds import get_dataset
 
-    from ..data_splits import (
-        check_dataset,
-        create_few_shot_training_data,
-        init_dict,
-        save_dict,
-    )
     from ...utils.constants import UtilsConstants
     from ...utils.utils import set_seed
+    from ..data_splits import (check_dataset, create_few_shot_training_data,
+                               init_dict, save_dict)
 
     # Setting the random seed
     set_seed(UtilsConstants.DEFAULT_SEED.value)

@@ -1,8 +1,9 @@
 # conftest.py
-import pytest
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
+
+import pytest
 
 
 @pytest.fixture(scope="session")

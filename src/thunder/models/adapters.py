@@ -1,8 +1,9 @@
 from functools import partial
-from omegaconf import DictConfig
+from operator import attrgetter
+
 import torch
 import torch.nn as nn
-from operator import attrgetter
+from omegaconf import DictConfig
 
 
 def set_nested_attribute(obj, attr_string, value):

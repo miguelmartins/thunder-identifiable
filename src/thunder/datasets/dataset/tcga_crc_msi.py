@@ -1,8 +1,5 @@
 def download_tcga_crc_msi(root_folder: str):
-    from ..utils import (
-        download_from_url,
-        unzip_file,
-    )
+    from ..utils import download_from_url, unzip_file
 
     urls = [
         "https://zenodo.org/api/records/3832231/files/TRAIN.zip/content",
@@ -21,19 +18,14 @@ def create_splits_tcga_crc_msi(base_folder: str, dataset_cfg: dict) -> None:
     :param base_folder: path to the main folder storing datasets.
     :param dataset_cfg: dataset-specific config.
     """
-    from collections import defaultdict
     import os
     import random
+    from collections import defaultdict
 
-    from ..data_splits import (
-        check_dataset,
-        create_few_shot_training_data,
-        get_data_from_set,
-        init_dict,
-        save_dict,
-    )
     from ...utils.constants import UtilsConstants
     from ...utils.utils import set_seed
+    from ..data_splits import (check_dataset, create_few_shot_training_data,
+                               get_data_from_set, init_dict, save_dict)
 
     # Setting the random seed
     set_seed(UtilsConstants.DEFAULT_SEED.value)

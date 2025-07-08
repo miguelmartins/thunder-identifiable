@@ -1,7 +1,8 @@
 import os
 from typing import Optional
-from omegaconf import OmegaConf, DictConfig
-from hydra import initialize, compose
+
+from hydra import compose, initialize
+from omegaconf import DictConfig, OmegaConf
 
 
 def get_config(

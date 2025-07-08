@@ -1,8 +1,9 @@
-from einops import rearrange
 import math
-from timm.layers import DropPath, trunc_normal_
+
 import torch
 import torch.nn as nn
+from einops import rearrange
+from timm.layers import DropPath, trunc_normal_
 
 
 class ClassificationHead(nn.Module):

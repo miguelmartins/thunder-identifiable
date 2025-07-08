@@ -1,16 +1,16 @@
-from collections.abc import Callable
-import numpy as np
-from omegaconf import DictConfig
 import os
-import torch
-from torch.utils.data.dataloader import DataLoader
-from transformers.models.vit.modeling_vit import ViTModel
-from tqdm import tqdm
+from collections.abc import Callable
 
 import h5py
+import numpy as np
+import torch
+from omegaconf import DictConfig
+from torch.utils.data.dataloader import DataLoader
+from tqdm import tqdm
+from transformers.models.vit.modeling_vit import ViTModel
 
 from ..models.pretrained_models import load_pretrained_model
-from ..utils.data import get_data, PatchDataset
+from ..utils.data import PatchDataset, get_data
 
 
 def pre_computing_patch_embeddings(

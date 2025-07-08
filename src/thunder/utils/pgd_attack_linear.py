@@ -1,14 +1,13 @@
 from __future__ import annotations
 
+import random
 from typing import Literal, Tuple
 
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as T
-
-import matplotlib.pyplot as plt
-import random
 
 mean = torch.tensor([0.485, 0.456, 0.406]).reshape(1, 3, 1, 1)
 std = torch.tensor([0.229, 0.224, 0.225]).reshape(1, 3, 1, 1)

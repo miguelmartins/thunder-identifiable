@@ -1,10 +1,8 @@
 import os
 
+
 def download_segpath_epithelial(root_folder: str):
-    from ..utils import (
-        download_from_url,
-        untar_file,
-    )
+    from ..utils import download_from_url, untar_file
 
     url = "https://zenodo.org/api/records/7412731/files/panCK_fileinfo.csv/content"
     download_from_url(url, f"{root_folder}/content")
@@ -23,10 +21,8 @@ def create_splits_segpath_epithelial(base_folder: str, dataset_cfg: dict) -> Non
     :param dataset_cfg: dataset-specific config.
     """
     import os
-    from ..data_splits import (
-        check_dataset,
-        save_dict,
-    )
+
+    from ..data_splits import check_dataset, save_dict
 
     # Getting data splist dict
     segpath_epithelial_data_splits = segpath(
@@ -57,13 +53,8 @@ def segpath(base_folder: str, dataset_cfg: dict, cell_type: str) -> None:
     """
     import pandas as pd
 
-    from ..data_splits import (
-        check_dataset,
-        compute_patches,
-        init_dict,
-        save_dict,
-        sorted_listdir,
-    )
+    from ..data_splits import (check_dataset, compute_patches, init_dict,
+                               save_dict, sorted_listdir)
 
     # Initializing dict
     segpath_data_splits = init_dict()

@@ -1,8 +1,5 @@
 def download_esca(root_folder: str):
-    from ..utils import (
-        download_from_url,
-        untar_file,
-    )
+    from ..utils import download_from_url, untar_file
 
     urls = [
         "https://zenodo.org/api/records/7548828/files/VALSET1_UKK.tar/content",
@@ -29,15 +26,10 @@ def create_splits_esca(base_folder: str, dataset_cfg: dict) -> None:
 
     import os
 
-    from ..data_splits import (
-        check_dataset,
-        create_few_shot_training_data,
-        get_data_from_set,
-        init_dict,
-        save_dict,
-    )
     from ...utils.constants import UtilsConstants
     from ...utils.utils import set_seed
+    from ..data_splits import (check_dataset, create_few_shot_training_data,
+                               get_data_from_set, init_dict, save_dict)
 
     # Setting the random seed
     set_seed(UtilsConstants.DEFAULT_SEED.value)

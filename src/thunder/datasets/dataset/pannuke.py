@@ -1,10 +1,7 @@
 def download_pannuke(root_folder: str):
     import os
 
-    from ..utils import (
-        download_from_url,
-        unzip_file,
-    )
+    from ..utils import download_from_url, unzip_file
 
     urls = [
         "https://warwick.ac.uk/fac/cross_fac/tia/data/pannuke/fold_1.zip",
@@ -31,11 +28,7 @@ def create_splits_pannuke(base_folder: str, dataset_cfg: dict) -> None:
 
     import os
 
-    from ..data_splits import (
-        check_dataset,
-        init_dict,
-        save_dict,
-    )
+    from ..data_splits import check_dataset, init_dict, save_dict
 
     # Initializing dict
     pannuke_data_splits = init_dict()
