@@ -23,8 +23,9 @@ nav:
   - Leaderboard: leaderboard.md 
   - Tutorials:
     - Getting Started: getting_started.md
-    - Benchmark a Custom Model: custom_model.md
+    - Benchmarking a Custom Model: custom_model.md
     - Overriding Configurations: custom_config.md
+    - Using foundation models on your data: get_model.md
   - API: api.md
 
 theme: 
