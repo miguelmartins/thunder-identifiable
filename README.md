@@ -68,10 +68,18 @@ conda create -n thunder_env python=3.10
 conda activate thunder_env
 ```
 
-To install `thunder` run the following command:
+To install `thunder` run one of the following commands:
 
+#### From PyPi
+```console
+pip install thunder-bench
+```
+
+#### From Source
 ```console
 pip install -e . # install the package in editable mode
+```
+```console
 pip install . # install the package
 ```
 
