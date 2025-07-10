@@ -133,7 +133,9 @@ def get_model(model_cfg: dict, device: str):
                     src, proj_contrast=False, normalize=False
                 )
             else:
-                _, emb = pretrained_model._encode_image(src, normalize=False)
+                emb = pretrained_model.visual.trunk(
+                    src, **pretrained_model.visual.trunk_kwargs
+                )[:, 1:]
             return emb
 
     elif model_cfg.model_name == "keep":
