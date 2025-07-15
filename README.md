@@ -15,8 +15,9 @@
 
 We introduce **THUNDER**, a comprehensive benchmark designed to rigorously compare foundation models across various downstream tasks in computational pathology. THUNDER enables the evaluation and analysis of feature representations, robustness, and uncertainty quantification of these models across different datasets. Our benchmark encompasses a diverse collection of well-established datasets, covering multiple cancer types, image magnifications, and varying image and sample sizes. We propose an extensive set of tasks aimed at thoroughly assessing the capabilities and limitations of foundation models in digital pathology.
 
-* **Paper**: [THUNDER: Tile-level Histopathology image UNDERstanding benchmark](https://arxiv.org/abs/2507.07860)
-* **Homepage/Documentation**: [THUNDER docs](https://mics-lab.github.io/thunder/)
+&#9889; **Paper**: [THUNDER: Tile-level Histopathology image UNDERstanding benchmark](https://arxiv.org/abs/2507.07860)\
+&#9889; **Homepage/Documentation**: [THUNDER docs](https://mics-lab.github.io/thunder/)\
+&#9889; **Leaderboard**: [THUNDER leaderboard](https://mics-lab.github.io/thunder/leaderboard/)
 
 ## Overview
 
