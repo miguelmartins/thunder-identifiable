@@ -77,7 +77,7 @@ def load_pretrained_model(cfg: DictConfig, adaptation_type: str, device: str):
     else:
         # Eval model
         pretrained_model.eval()
-        # Not requiring gradients
+    # Not requiring gradients
     for param in pretrained_model.parameters():
         param.requires_grad = False
 
