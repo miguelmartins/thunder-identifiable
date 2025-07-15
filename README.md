@@ -5,6 +5,7 @@
 
 <div align="center">
 
+[![Paper](https://img.shields.io/badge/THUNDER-arXiv.2507.07860-purple.svg)](https://arxiv.org/abs/2507.07860)
 [![Python application](https://github.com/MICS-lab/thunder/actions/workflows/ci.yml/badge.svg)](https://github.com/MICS-lab/thunder/actions/workflows/ci.yml)
 [![Docs](https://img.shields.io/badge/docs-mkdocs-blue)](https://mics-lab.github.io/thunder/)
 [![License](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://github.com/MICS-Lab/thunder/blob/main/LICENSE)
@@ -14,6 +15,8 @@
 
 We introduce **THUNDER**, a comprehensive benchmark designed to rigorously compare foundation models across various downstream tasks in computational pathology. THUNDER enables the evaluation and analysis of feature representations, robustness, and uncertainty quantification of these models across different datasets. Our benchmark encompasses a diverse collection of well-established datasets, covering multiple cancer types, image magnifications, and varying image and sample sizes. We propose an extensive set of tasks aimed at thoroughly assessing the capabilities and limitations of foundation models in digital pathology.
 
+* **Paper**: [THUNDER: Tile-level Histopathology image UNDERstanding benchmark](https://arxiv.org/abs/2507.07860)
+* **Homepage/Documentation**: [THUNDER docs](https://mics-lab.github.io/thunder/)
 
 ## Overview
 
@@ -23,6 +26,7 @@ We propose a benchmark to compare and study foundation models across three axes:
 
 
 ## Usage
+To learn more about how to use `thunder`, please visit our [documentation](https://mics-lab.github.io/thunder/).
 
 An API and command line interface (CLI) are provided to allow users to download datasets, models, and run benchmarks. The API is designed to be user-friendly and allows for easy integration into existing workflows. The CLI provides a convenient way to access the same functionality from the command line.
 
