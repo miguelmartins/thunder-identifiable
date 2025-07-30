@@ -148,7 +148,8 @@ def get_class_images(image_folders: list, curr_folder: str, class_folder: str) -
     :param class_folder: name of the class folder.
     :return: list of image filenames.
     """
-
+    from ..data_splits import sorted_listdir
+    import os
     class_images = []
     for image_folder in image_folders:
         ims = sorted_listdir(os.path.join(curr_folder, image_folder))

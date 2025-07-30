@@ -1,3 +1,5 @@
+import os
+
 def download_esca(root_folder: str):
     from ..utils import download_from_url, untar_file
 
@@ -23,9 +25,6 @@ def create_splits_esca(base_folder: str, dataset_cfg: dict) -> None:
     :param base_folder: path to the main folder storing datasets.
     :param dataset_cfg: dataset-specific config.
     """
-
-    import os
-
     from ...utils.constants import UtilsConstants
     from ...utils.utils import set_seed
     from ..data_splits import (check_dataset, create_few_shot_training_data,
