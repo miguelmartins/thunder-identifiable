@@ -1,5 +1,8 @@
+import os
+from wilds import get_dataset
+
 def download_wilds(root_folder: str):
-    raise NotImplementedError("The WILDS dataset is not implemented yet.")
+    get_dataset(dataset="camelyon17", download=True, root_dir=os.path.join(root_folder, "data"))
 
 
 def create_splits_wilds(base_folder: str, dataset_cfg: dict) -> None:
@@ -9,10 +12,6 @@ def create_splits_wilds(base_folder: str, dataset_cfg: dict) -> None:
     :param base_folder: path to the main folder storing datasets.
     :param dataset_cfg: dataset-specific config.
     """
-
-    import os
-
-    from wilds import get_dataset
 
     from ...utils.constants import UtilsConstants
     from ...utils.utils import set_seed
@@ -47,7 +46,6 @@ def create_splits_wilds(base_folder: str, dataset_cfg: dict) -> None:
 
     # Few-shot training data
     wilds_data_splits = create_few_shot_training_data(wilds_data_splits)
-
     # Checking dataset characteristics
     check_dataset(
         wilds_data_splits,
