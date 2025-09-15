@@ -51,6 +51,7 @@ class DatasetConstants(Enum):
         "tcga_tils",
         "tcga_uniform",
         "wilds",
+        "spider_breast",
     ]
 
 

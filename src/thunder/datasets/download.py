@@ -138,5 +138,7 @@ def download_dataset(dataset: str):
         download_mhist(root_folder)
     elif dataset == "bracs":
         download_bracs(root_folder)
+    elif dataset == "spider_breast":
+        download_spider_breast(root_folder)
     else:
         raise ValueError(f"Dataset {dataset} is not supported.")

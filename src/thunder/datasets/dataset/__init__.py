@@ -19,3 +19,4 @@ from .tcga_crc_msi import create_splits_tcga_crc_msi, download_tcga_crc_msi
 from .tcga_tils import create_splits_tcga_tils, download_tcga_tils
 from .tcga_uniform import create_splits_tcga_uniform, download_tcga_uniform
 from .wilds import create_splits_wilds, download_wilds
+from .spider_breast import create_splits_spider_breast, download_spider_breast

@@ -1,0 +1,81 @@
+dataset_name: spider_breast
+nb_classes: 18
+base_data_folder: ${oc.env:THUNDER_BASE_DATA_FOLDER}/datasets/
+compatible_tasks:
+  [
+    "alignment_scoring",
+    "image_retrieval",
+    "knn",
+    "linear_probing",
+    "pre_computing_embeddings",
+    "simple_shot",
+    "transformation_invariance",
+    "adversarial_attack",
+  ]
+
+nb_train_samples: 67581
+nb_val_samples: 13277
+nb_test_samples: 12034
+md5sum: "ed7ea620aae01ba0af628c2693640571"
+image_sizes: [[224, 224]]
+mpp: 0.5
+cancer_type: breast
+classes:
+  [
+    "Adenosis",
+    "Benign phyllodes tumor",
+    "Ductal carcinoma in situ (high-grade)",
+    "Ductal carcinoma in situ (low-grade)",
+    "Fat",
+    "Fibroadenoma",
+    "Fibrocystic changes",
+    "Fibrosis",
+    "Invasive non-special type carcinoma",
+    "Lipogranuloma",
+    "Lobular invasive carcinoma",
+    "Malignant phyllodes tumor",
+    "Necrosis",
+    "Normal ducts",
+    "Normal lobules",
+    "Sclerosing adenosis",
+    "Typical ductal hyperplasia",
+    "Vessels",
+  ]
+class_to_id:
+  "Adenosis": 0
+  "Benign phyllodes tumor": 1
+  "Ductal carcinoma in situ (high-grade)": 2
+  "Ductal carcinoma in situ (low-grade)": 3
+  "Fat": 4
+  "Fibroadenoma": 5
+  "Fibrocystic changes": 6
+  "Fibrosis": 7
+  "Invasive non-special type carcinoma": 8
+  "Lipogranuloma": 9
+  "Lobular invasive carcinoma": 10
+  "Malignant phyllodes tumor": 11
+  "Necrosis": 12
+  "Normal ducts": 13
+  "Normal lobules": 14
+  "Sclerosing adenosis": 15
+  "Typical ductal hyperplasia": 16
+  "Vessels": 17
+id_to_class:
+  0: "Adenosis"
+  1: "Benign phyllodes tumor"
+  2: "Ductal carcinoma in situ (high-grade)"
+  3: "Ductal carcinoma in situ (low-grade)"
+  4: "Fat"
+  5: "Fibroadenoma"
+  6: "Fibrocystic changes"
+  7: "Fibrosis"
+  8: "Invasive non-special type carcinoma"
+  9: "Lipogranuloma"
+  10: "Lobular invasive carcinoma"
+  11: "Malignant phyllodes tumor"
+  12: "Necrosis"
+  13: "Normal ducts"
+  14: "Normal lobules"
+  15: "Sclerosing adenosis"
+  16: "Typical ductal hyperplasia"
+  17: "Vessels"

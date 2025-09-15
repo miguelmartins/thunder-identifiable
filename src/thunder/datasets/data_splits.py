@@ -39,6 +39,7 @@ def generate_splits(datasets: Union[List[str], str]) -> None:
                 "segpath_epithelial",
                 "segpath_lymphocytes",
                 "mhist",
+                "spider_breast",
             ]
         elif datasets[0] == "classification":
             datasets = [
@@ -54,6 +55,7 @@ def generate_splits(datasets: Union[List[str], str]) -> None:
                 "tcga_uniform",
                 "wilds",
                 "mhist",
+                "spider_breast",
             ]
         elif datasets[0] == "segmentation":
             datasets = [
@@ -89,7 +91,8 @@ def generate_splits_for_dataset(dataset_name: str) -> None:
                           create_splits_segpath_epithelial,
                           create_splits_segpath_lymphocytes,
                           create_splits_tcga_crc_msi, create_splits_tcga_tils,
-                          create_splits_tcga_uniform, create_splits_wilds)
+                          create_splits_tcga_uniform, create_splits_wilds, 
+                          create_splits_spider_breast)
 
     DATASET_TO_FUNCTION = {
         # Classification
@@ -105,6 +108,7 @@ def generate_splits_for_dataset(dataset_name: str) -> None:
         "tcga_tils": create_splits_tcga_tils,
         "tcga_uniform": create_splits_tcga_uniform,
         "wilds": create_splits_wilds,
+        "spider_breast": create_splits_spider_breast,
         # Segmentation
         "ocelot": create_splits_ocelot,
         "pannuke": create_splits_pannuke,
@@ -314,6 +318,31 @@ def get_data_from_set(dataset_folder: str, set_name: str, dataset_cfg: dict) -> 
         curr_folder = os.path.join(folder, subfolder)
         curr_images = sorted_listdir(curr_folder)
         curr_images = [os.path.join(set_name, subfolder, s) for s in curr_images]
+        images.extend(curr_images)
+        labels.extend([dataset_cfg.class_to_id[subfolder]] * len(curr_images))
+    return images, labels
+
+
+def get_data_from_folder_recursive(dataset_folder: str, set_name: str, dataset_cfg: dict) -> list:
+    """
+    Retrieving images and labels from a folder recursively.
+
+    use this for spider datasets : folder -> class subfolder -> wsi subfolder -> images
+    """
+    images = []
+    labels = []
+    folder = os.path.join(dataset_folder, set_name)
+
+    for subfolder in dataset_cfg.classes:
+        curr_folder = os.path.join(folder, subfolder)
+        curr_images = []
+        for root, _, files in os.walk(curr_folder):
+            for file in files:
+                if file.endswith((".png", ".jpg", ".jpeg")):
+                    rel_dir = os.path.relpath(root, dataset_folder)
+                    rel_file = os.path.join(rel_dir, file)
+                    curr_images.append(rel_file)
+        curr_images = sorted(curr_images)
         images.extend(curr_images)
         labels.extend([dataset_cfg.class_to_id[subfolder]] * len(curr_images))
     return images, labels
