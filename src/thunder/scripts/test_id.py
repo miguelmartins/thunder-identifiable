@@ -6,6 +6,7 @@ import h5py
 
 from src.thunder.utils.data import load_embeddings
 import torchmetrics
+from datetime import datetime
 
 
 class EmbeddingsInstanceDataset(torch.utils.data.Dataset):
@@ -88,6 +89,7 @@ MAX_EPOCHS = 150
 WEIGHT_DECAY = 0.05
 LR = 1e-4
 WARMUP = int(0.1 * MAX_EPOCHS)
+N_RUNS = 100
 
 
 def main():
@@ -106,41 +108,40 @@ def main():
         print(type(x), type(y), type(embeddings), type(emb[x]))
 
     train = emb["train"]
-    perm = torch.randperm(N)  # draw once
-    train_samples = torch.utils.data.Subset(train, perm)
-    assert len(train_samples) == N
-    # TODO: add sampler so that training N=1000
-    train_dl = torch.utils.data.DataLoader(train_samples, batch_size=32)
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    for run_number in range(N_RUNS):
+        perm = torch.randperm(N)  # draw once
+        train_samples = torch.utils.data.Subset(train, perm)
+        assert len(train_samples) == N
+        train_dl = torch.utils.data.DataLoader(train_samples, batch_size=32)
 
-    linear_map = torch.nn.Linear(
-        in_features=512, out_features=len(train_samples), bias=False
-    )
-    metrics = torchmetrics.MetricCollection(
-        {
-            "id_acc": torchmetrics.Accuracy(
-                task="multiclass",
-                # W projects from d to |I|, so we can use this to get the number of "instances"
-                num_classes=N,
-            )
-        }
-    )
+        linear_map = torch.nn.Linear(
+            in_features=512, out_features=len(train_samples), bias=False
+        )
+        metrics = torchmetrics.MetricCollection(
+            {
+                "id_acc": torchmetrics.Accuracy(
+                    task="multiclass",
+                    # W projects from d to |I|, so we can use this to get the number of "instances"
+                    num_classes=N,
+                )
+            }
+        )
 
-    id_model = InstanceLearner(
-        linear_projector=linear_map, metrics=metrics, learning_rate=LR
-    )
-    logger = TensorBoardLogger("logs", name="conch")
-    trainer = L.Trainer(
-        max_epochs=MAX_EPOCHS,
-        devices=1,
-        accelerator=device,
-        # check_val_every_n_epoch=config.check_val_every_n_epoch,
-        # callbacks=[
-        #     LinearDisentanglement(),
-        # ],
-        logger=logger,
-    )
+        id_model = InstanceLearner(
+            linear_projector=linear_map, metrics=metrics, learning_rate=LR
+        )
+        logger = TensorBoardLogger(
+            "logs", name="conch", version=timestamp, sub_dir=str(run_number)
+        )
+        trainer = L.Trainer(
+            max_epochs=MAX_EPOCHS,
+            devices=1,
+            accelerator=device,
+            logger=logger,
+        )
 
-    trainer.fit(id_model, train_dl)
+        trainer.fit(id_model, train_dl)
 
 
 if __name__ == "__main__":
