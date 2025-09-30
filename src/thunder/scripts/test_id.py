@@ -113,7 +113,9 @@ def main():
         perm = torch.randperm(N)  # draw once
         train_samples = torch.utils.data.Subset(train, perm)
         assert len(train_samples) == N
-        train_dl = torch.utils.data.DataLoader(train_samples, batch_size=32)
+        train_dl = torch.utils.data.DataLoader(
+            train_samples, shuffle=True, batch_size=32
+        )
 
         linear_map = torch.nn.Linear(
             in_features=512, out_features=len(train_samples), bias=False
@@ -139,6 +141,7 @@ def main():
             devices=1,
             accelerator=device,
             logger=logger,
+            reload_dataloaders_every_n_epochs=1,  # make sure we create a new permutation
         )
 
         trainer.fit(id_model, train_dl)
