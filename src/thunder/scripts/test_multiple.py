@@ -7,6 +7,7 @@ import h5py
 from src.thunder.utils.data import load_embeddings
 import torchmetrics
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class EmbeddingsInstanceDataset(torch.utils.data.Dataset):
@@ -85,15 +86,17 @@ class InstanceLearner(L.LightningModule):
 
 
 N = 10000
-MAX_EPOCHS = 150
+MAX_EPOCHS = 50
 WEIGHT_DECAY = 0.05
 LR = 1e-4
 WARMUP = int(0.1 * MAX_EPOCHS)
 N_RUNS = 100
+NAMES = ["conch", "uni", "uni2h", "clipvitbasepatch32"]
+EMBED = [512, 1024, 1536, 512]
 
 
-def main():
-    folder = "/Users/miguelmartins/Projects/thunder-identifiable/src/thunder/embeddings/uni2h/"
+def fit(name, embed):
+    folder = f"/Users/miguelmartins/Projects/thunder-identifiable/src/thunder/embeddings/{name}"
     device = (
         "cuda"
         if torch.cuda.is_available()
@@ -118,7 +121,7 @@ def main():
         )
 
         linear_map = torch.nn.Linear(
-            in_features=512, out_features=len(train_samples), bias=False
+            in_features=embed, out_features=len(train_samples), bias=False
         )
         metrics = torchmetrics.MetricCollection(
             {
@@ -133,19 +136,34 @@ def main():
         id_model = InstanceLearner(
             linear_projector=linear_map, metrics=metrics, learning_rate=LR
         )
-        # logger = TensorBoardLogger(
-        #     "logs", name="conch", version=timestamp, sub_dir=str(run_number)
-        # )
+        logger = TensorBoardLogger(
+            "logs", name=f"{name}_{timestamp}", sub_dir=str(run_number)
+        )
         trainer = L.Trainer(
             max_epochs=MAX_EPOCHS,
             devices=1,
             accelerator=device,
-            # logger=logger,
+            logger=logger,
             reload_dataloaders_every_n_epochs=1,  # make sure we create a new permutation
         )
 
         trainer.fit(id_model, train_dl)
 
 
+def run_all_threads():
+    with ThreadPoolExecutor(max_workers=len(NAMES)) as pool:
+        futures = {
+            pool.submit(fit, name, embed_dim): name
+            for name, embed_dim in zip(NAMES, EMBED)
+        }
+        for fut in as_completed(futures):
+            name = futures[fut]
+            try:
+                fut.result()
+                print(f"[OK] {name} finished.")
+            except Exception as e:
+                print(f"[ERR] {name} failed: {e}")
+
+
 if __name__ == "__main__":
-    main()
+    run_all_threads()
