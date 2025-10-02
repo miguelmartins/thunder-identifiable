@@ -137,7 +137,7 @@ def fit(name, embed):
             linear_projector=linear_map, metrics=metrics, learning_rate=LR
         )
         logger = TensorBoardLogger(
-            "logs", name=f"{name}_{timestamp}", sub_dir=str(run_number)
+            "logs", name=f"{name}", version=timestamp, sub_dir=str(run_number)
         )
         trainer = L.Trainer(
             max_epochs=MAX_EPOCHS,
