@@ -6,6 +6,8 @@ from typing import Callable
 import hydra
 from omegaconf import DictConfig
 
+from thunder.tasks.identification import pre_computing_augmentation_embeddings
+
 from .datasets.utils import is_dataset_available
 from .models.utils import is_model_available, load_custom_model_from_file
 from .utils.utils import print_task_hyperparams
@@ -111,8 +113,7 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
     from .tasks.alignment_scoring import alignment_scoring
     from .tasks.image_retrieval import image_retrieval
     from .tasks.knn_classification import knn
-    from .tasks.pre_computing_patch_embeddings import \
-        pre_computing_patch_embeddings
+    from .tasks.pre_computing_patch_embeddings import pre_computing_patch_embeddings
     from .tasks.simple_shot import simple_shot
     from .tasks.train_eval_probe import eval_probe, train_probe
     from .tasks.transformation_invariance import transformation_invariance
@@ -145,9 +146,9 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
         f"The chosen adaptation type ({adaptation_type}) is not within the compatible "
         f"adaptation types for the chosen task: {task_compatible_adaptation_types}."
     )
-    assert not (
-        image_pre_loading and embedding_pre_loading
-    ), "We do not pre-load both images and embeddings."
+    assert not (image_pre_loading and embedding_pre_loading), (
+        "We do not pre-load both images and embeddings."
+    )
 
     # W&B login
     wandb.login()
@@ -372,7 +373,38 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
                     res_folder,
                     wandb_base_folder,
                 )
+    elif task_type == "pre_computing_augmentation_embeddings":
+        embeddings_folder = os.path.join(
+            base_embeddings_folder,
+            dataset_name,
+            model_name,
+        )
+        if not os.path.exists(embeddings_folder):
+            logging.info(
+                f"No pre-computed embeddings found for the (dataset, model) pair "
+                f"({dataset_name}, {model_name}). Computing them."
+            )
+        else:
+            emb_info_str = (
+                "Computing augmentation embeddings for (dataset, model) pair IN TRAIN SET ONLY"
+                f"({dataset_name}, {model_name})."
+            )
 
+            logging.info(emb_info_str)
+            pre_computing_augmentation_embeddings(
+                cfg,
+                embeddings_folder,
+                device,
+                dataset_name,
+                base_data_folder,
+                data_compatible_tasks,
+                adaptation_type,
+                base_embeddings_folder,
+                model_name,
+                image_pre_loading,
+                embedding_pre_loading,
+                model_cls,
+            )
     if task_type == "transformation_invariance":
         transformation_invariance(
             cfg,

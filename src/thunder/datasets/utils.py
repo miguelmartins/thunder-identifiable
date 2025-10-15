@@ -1,4 +1,6 @@
 import os
+import torch
+from typing import Tuple
 
 
 def download_from_url(url: str, filename: str):
@@ -77,3 +79,14 @@ def is_dataset_available(dataset_name: str) -> bool:
     """
     datasets_dir = os.path.join(os.environ["THUNDER_BASE_DATA_FOLDER"], "datasets/")
     return os.path.exists(os.path.join(datasets_dir, dataset_name))
+
+
+class EmbeddingsInstanceDataset(torch.utils.data.Dataset):
+    def __init__(self, embeddings) -> None:
+        self.embeddings = embeddings
+
+    def __getitem__(self, index) -> Tuple[torch.Tensor, int]:
+        return self.embeddings[index], index
+
+    def __len__(self) -> int:
+        return len(self.embeddings)

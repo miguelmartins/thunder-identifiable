@@ -2,8 +2,10 @@ import math
 
 import torch
 import torch.nn as nn
+import lightning as L
 from einops import rearrange
 from timm.layers import DropPath, trunc_normal_
+import torchmetrics
 
 
 class ClassificationHead(nn.Module):
@@ -290,3 +292,84 @@ class Block(nn.Module):
         x = x + self.drop_path(y)
         x = x + self.drop_path(self.mlp(self.norm2(x)))
         return x
+
+
+class InstanceLearner(L.LightningModule):
+    def __init__(
+        self,
+        f: torch.nn.Module,
+        linear_projector: torch.nn.Linear,
+        learning_rate: float,
+        metrics: torchmetrics.MetricCollection,
+        max_epochs: int,
+        warmup_percent: float,
+        device: str,
+    ) -> None:
+        super().__init__()
+        self.f = f
+        self.linear_projector = linear_projector
+        self.learning_rate = learning_rate
+        self.automatic_optimization = False
+        self.train_metrics = metrics
+        self.validation_metrics = self.train_metrics.clone(prefix="val_")
+        self.max_epochs = max_epochs
+        self.warmup = int(self.max_epochs * warmup_percent)
+
+    def _process_batch(self, batch):
+        if isinstance(batch, dict):
+            batch = batch["image"].to(self.device)
+        return batch
+
+    def forward(self, batch):
+        x, _ = batch
+        x = self._process_batch(x)
+        return self.linear_projector(self.f(x))
+
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        x = self._process_batch(x)
+        y_hat = self.linear_projector(self.f(x))
+        loss = torch.nn.functional.cross_entropy(y_hat, y)
+        opt = self.optimizers()
+        opt.zero_grad()
+        self.manual_backward(loss)
+        opt.step()
+        metric_values = self.train_metrics(y_hat, y)
+        # Logging to TensorBoard (if installed) by default
+        self.log("train_loss", loss, prog_bar=True)
+        self.log_dict(metric_values, prog_bar=True)
+        return loss
+
+    def on_train_epoch_end(self):
+        schedulers = self.lr_schedulers()
+        try:
+            for scheduler in schedulers:
+                scheduler.step()
+        except TypeError:
+            schedulers.step()
+
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        x = self._process_batch(x)
+        y_hat = self.linear_projector(self.f(x))
+        # - Input: Shape `(C)`, `(N, C)` or `(N, C, d_1, d_2, ..., d_K)` with `K \geq 1`
+        loss = torch.nn.functional.cross_entropy(y_hat, y)
+        metric_values = self.validation_metrics(y_hat, y)
+        # Logging to TensorBoard (if installed) by default
+        self.log("val_loss", loss, prog_bar=True)
+        self.log_dict(metric_values, prog_bar=True)
+        return loss
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate)
+        warmup = torch.optim.lr_scheduler.LinearLR(
+            optimizer=optimizer,
+            start_factor=1e-8,
+            end_factor=1,
+            total_iters=self.warmup,
+        )
+        cosine_ann = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer, T_max=self.max_epochs
+        )
+
+        return [optimizer], [warmup, cosine_ann]  # [warmup, cosine_ann]
