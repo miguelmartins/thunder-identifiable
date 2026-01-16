@@ -214,7 +214,7 @@ def _random_color_jitter(
 
 
 def _random_gamma(
-    gamma_range: Tuple[float, float] = (-0.5, 0.5)
+    gamma_range: Tuple[float, float] = (-0.5, 0.5),
 ) -> Callable[[_Image], _Image]:
     """
     Random gamma adjustment: gamma is sampled in [1 + min, 1 + max] = [0.5, 1.5].

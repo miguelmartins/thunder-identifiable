@@ -89,6 +89,7 @@ class InstanceLearner(L.LightningModule):
     def _process_batch(self, batch):
         if isinstance(batch, dict):
             batch = batch["image"].to(self.device)
+            # TODO: see if I need to use pil transform
             # batch = torch.stack([_pil_from_any(img) for img in batch]).to(self.device)
         # Compute embeddings for original images
         return batch
@@ -150,9 +151,12 @@ class InstanceLearner(L.LightningModule):
 def simclr_augmentations(image_size, jitter_strength):
     # SimCLR uses: B/C/S = 0.8*s, Hue = 0.2*s ; applied with prob 0.8
     color_jitter = transforms.ColorJitter(
-        brightness=0.8 * jitter_strength,
-        contrast=0.8 * jitter_strength,
-        saturation=0.8 * jitter_strength,
+        brightness=0.4 * jitter_strength,
+        contrast=0.4 * jitter_strength,
+        saturation=0.2 * jitter_strength,
+        # brightness=0.8 * jitter_strength,
+        # contrast=0.8 * jitter_strength,
+        # saturation=0.8 * jitter_strength,
         hue=0.2 * jitter_strength,
     )
 
@@ -162,9 +166,39 @@ def simclr_augmentations(image_size, jitter_strength):
         k += 1
 
     augmentation = [
-        transforms.RandomResizedCrop(image_size, scale=(0.08, 1.0)),
+        # T.ToPILImage()
+        # v2.RGB?
+        transforms.RandomResizedCrop(image_size, antialias=True),  # scale=(0.08, 1.0)),
         transforms.RandomHorizontalFlip(p=0.5),
-        transforms.RandomApply([color_jitter], p=0.8),
+        transforms.RandomApply([color_jitter], p=0.3),  # p=0.8),
+        transforms.RandomGrayscale(p=0.2),
+        transforms.RandomApply(
+            [transforms.GaussianBlur(kernel_size=k, sigma=(0.1, 2.0))], p=0.5
+        ),
+    ]
+    return transforms.Compose(augmentation)
+
+
+def dietcp_augmentations(image_size, jitter_strength):
+    # SimCLR uses: B/C/S = 0.8*s, Hue = 0.2*s ; applied with prob 0.8
+    color_jitter = transforms.ColorJitter(
+        brightness=0.4 * jitter_strength,
+        contrast=0.4 * jitter_strength,
+        saturation=0.2 * jitter_strength,
+        hue=0.2 * jitter_strength,
+    )
+
+    # Gaussian blur kernel size ~ 0.1 * image_size, must be odd and >= 3
+    k = max(3, int(round(0.1 * image_size)))
+    if k % 2 == 0:
+        k += 1
+
+    augmentation = [
+        # T.ToPILImage()
+        # v2.RGB?
+        transforms.RandomResizedCrop(image_size, antialias=True),  # scale=(0.08, 1.0)),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.RandomApply([color_jitter], p=0.3),  # p=0.8),
         transforms.RandomGrayscale(p=0.2),
         transforms.RandomApply(
             [transforms.GaussianBlur(kernel_size=k, sigma=(0.1, 2.0))], p=0.5
@@ -191,11 +225,11 @@ def fit(model_name, embed, dataset_name="tcga_crc_msi", id_n=10**4):
     base_data_folder = os.path.join(os.environ["THUNDER_BASE_DATA_FOLDER"], "datasets")
     print(model_name, base_data_folder, dataset_name)
     data = get_data(dataset_name=dataset, base_data_folder=base_data_folder)
-    simclr_augs = simclr_augmentations(
+    augs = dietcp_augmentations(
         image_size=224,  # TODO: change this later dep. on dataset
         jitter_strength=1.0,
     )
-    transform_ = transforms.Compose([simclr_augs, preprocessing])
+    transform_ = transforms.Compose([augs, preprocessing])
     train_ = PatchDataset(
         data["train"]["images"],
         data["train"]["labels"],

@@ -17,16 +17,24 @@ from tqdm import tqdm
 
 from ..models.adapters import get_model_lora_names, init_adapters
 from ..models.pretrained_models import load_pretrained_model
-from ..models.task_specific_models import (ClassificationHead,
-                                           GridSearchClassificationHead,
-                                           GridSearchMaskTransformer,
-                                           MaskTransformer)
+from ..models.task_specific_models import (
+    ClassificationHead,
+    GridSearchClassificationHead,
+    GridSearchMaskTransformer,
+    MaskTransformer,
+)
 from ..utils.calibration_metrics import compute_calibration_metrics
 from ..utils.constants import UtilsConstants
 from ..utils.data import PatchDataset
 from ..utils.downstream_metrics import compute_metric, compute_metrics
-from ..utils.utils import (get_hyperaparams_dict, local_seed, log_loss,
-                           log_metrics, save_outputs, wb_mask)
+from ..utils.utils import (
+    get_hyperaparams_dict,
+    local_seed,
+    log_loss,
+    log_metrics,
+    save_outputs,
+    wb_mask,
+)
 
 
 def train_probe(
@@ -661,7 +669,9 @@ def train_eval(
                 )
 
                 # Finding background-only masks
-                bg_only = np.array([l.sum().item() == 0 for l in all_label if len(l) > 0])
+                bg_only = np.array(
+                    [l.sum().item() == 0 for l in all_label if len(l) > 0]
+                )
                 freq_bg_only = bg_only.sum().item() / len(bg_only)
                 no_bg_only_weight = max(
                     1.0, freq_bg_only * cfg.task.no_bg_only_weight_test

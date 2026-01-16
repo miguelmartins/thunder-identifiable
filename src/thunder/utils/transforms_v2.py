@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-import math
 from typing import Dict, Callable, Optional
-
 import numpy as np
 import torch
+from torchvision.transforms import functional as F
 import torchvision.transforms.v2 as v2
 from torchvision.transforms import InterpolationMode
 from PIL import Image
+from typing import Union
+from typing import Tuple
 
 try:
     import kornia.morphology as _kmorph
@@ -50,18 +51,63 @@ def get_transform_seed() -> Optional[int]:
 
 
 class RandomGamma(v2.Transform):
-    """Sample gamma in [1+lo, 1+hi] and apply."""
-
-    def __init__(self, gamma_add_range=(-0.5, 0.5)):
+    def __init__(self, gamma_add_range: Tuple[float, float] = (-0.5, 0.5)):
         super().__init__()
-        self.lo, self.hi = gamma_add_range
+        self.gamma_add_range = gamma_add_range
 
-    def _get_params(self, *args, **kwargs):
-        g = 1.0 + torch.empty(1).uniform_(self.lo, self.hi).item()
-        return {"gamma": g}
+    def _get_params(self, flat_inputs):
+        # Always sample delta; probability handled by v2.RandomApply outside
+        delta = float(torch.empty(1).uniform_(*self.gamma_add_range))
+        return {"delta": delta}
+
+    def transform(self, inpt, params):  # for some torchvision variants
+        return self._transform(inpt, params)
 
     def _transform(self, inpt, params):
-        return v2.functional.adjust_gamma(inpt, gamma=params["gamma"], gain=1.0)
+        # be defensive if params is None or missing
+        if not params or "delta" not in params:
+            params = {"delta": 0.0}
+        img = inpt
+        if not torch.is_tensor(img):
+            img = F.to_tensor(img)  # CHW float32 [0,1]
+        else:
+            img = img if img.dtype.is_floating_point else img.float().div(255)
+        gamma = 2.2 + params["delta"]
+        return torch.clamp(img, 0, 1) ** gamma
+
+
+class RandomFiveCrop(v2.Transform):
+    def __init__(self, size: Union[int, Tuple[int, int]] = 224):
+        super().__init__()
+        self.size = size
+
+    def _get_params(self, flat_inputs):
+        # nothing random yet; we draw index later to stay compatible with batched inputs
+        idx = int(torch.randint(0, 5, ()).item())
+        return {"idx": idx}
+
+    def transform(self, inpt, params):
+        return self._transform(inpt, params)
+
+    def _transform(self, inpt, params):
+        # Ensure tensor CHW
+        img = inpt
+        if not torch.is_tensor(img):
+            img = F.to_tensor(img)
+        C, H, W = img.shape
+        th, tw = (self.size, self.size) if isinstance(self.size, int) else self.size
+        if th > H or tw > W:
+            raise ValueError(f"Requested crop size {(th, tw)} > image {(H, W)}")
+
+        coords = [
+            (0, 0),  # TL
+            (0, W - tw),  # TR
+            (H - th, 0),  # BL
+            (H - th, W - tw),  # BR
+            ((H - th) // 2, (W - tw) // 2),  # C
+        ]
+        i, j = coords[params["idx"]]
+        return img[:, i : i + th, j : j + tw]
 
 
 class HEDShift(v2.Transform):
@@ -167,34 +213,8 @@ class KorniaMorph(v2.Transform):
         # Convert back to match input type (keep as tensor; caller can ToPIL if needed)
         return out
 
-
-class RandomFiveCrop(v2.Transform):
-    """
-    Pick one of the 5 standard crops (TL, TR, BL, BR, center) of size = min(H,W)//2.
-    """
-
-    def __init__(self):
-        super().__init__()
-
-    def _get_params(self, inpt):
-        # We need size based on image dims; infer after converting to PIL or Tensor
-        if isinstance(inpt, Image.Image):
-            w, h = inpt.size
-        else:
-            t = v2.functional.to_image(inpt)
-            _, h, w = t.shape
-        size = min(w, h) // 2
-        idx = int(torch.randint(0, 5, (1,)).item())
-        return {"size": size, "idx": idx}
-
-    def _transform(self, inpt, params):
-        crops = v2.FiveCrop(size=params["size"])(inpt)
-        return crops[params["idx"]]
-
-
-# ---------------------------
-# Factory
-# ---------------------------
+    def transform(self, inpt, params):
+        return self._transform(inpt, params)
 
 
 def get_invariance_transforms_v2() -> Dict[str, Callable]:
@@ -225,35 +245,24 @@ def get_invariance_transforms_v2() -> Dict[str, Callable]:
             ]
         ),
         # Translate/scale/shear in one affine
-        "random_translate": v2.RandomAffine(
-            degrees=0.0,
-            translate=(0.20, 0.20),  # max_frac
-            scale=(1.0 - 0.20, 1.0 + 0.20),
-            shear=(-0.20 * 10 / 2, 0.20 * 10 / 2),
-            interpolation=InterpolationMode.BILINEAR,
-        ),
         "random_gaussian_blur": v2.GaussianBlur(kernel_size=15),
         "random_color_jitter": v2.ColorJitter(
             brightness=0.5, contrast=0.5, saturation=0.5, hue=0.35
         ),
-        "random_gamma": RandomGamma(gamma_add_range=(-0.5, 0.5)),
-        "random_hed": HEDShift(sigma=0.025),
+        "random_gamma": v2.RandomApply(
+            [RandomGamma(gamma_add_range=(-0.5, 0.5))], p=1.0
+        ),
         # Cutout -> RandomErasing (square; erase with zeros)
         "random_cutout": v2.Compose(
             [
-                to_tensor_01,
+                # to_tensor_01,
                 v2.RandomErasing(
                     p=1.0, scale=(0.10, 0.50), ratio=(1.0, 1.0), value=0.0
                 ),
             ]
         ),
         # Morphology ops (require kornia)
-        "random_dilation": KorniaMorph("dilation", max_kernel=5),
-        "random_erosion": KorniaMorph("erosion", max_kernel=5),
-        "random_opening": KorniaMorph("opening", max_kernel=5),
-        "random_closing": KorniaMorph("closing", max_kernel=5),
-        "five_crop": RandomFiveCrop(),
-        "elastic_transform": v2.ElasticTransform(alpha=250.0, sigma=6.0),
+        # "five_crop": RandomFiveCrop(size=224),
     }
 
 

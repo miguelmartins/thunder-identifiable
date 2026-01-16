@@ -48,4 +48,4 @@ if __name__ == "__main__":
         # "clipvitlargepatch14",
     ]
     for dataset, model in tqdm(itertools.product(datasets, models)):
-        benchmark(model, dataset, "pre_computing_embeddings")
+        benchmark(model, dataset, "pre_computing_augmentation_embeddings")

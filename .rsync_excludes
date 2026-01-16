@@ -9,3 +9,5 @@ tb_*/
 logs*/
 lightning_logs/
 *.zip
+src/thunder/embeddings/
+git/*

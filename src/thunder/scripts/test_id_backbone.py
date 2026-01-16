@@ -84,16 +84,16 @@ class InstanceLearner(L.LightningModule):
         return [optimizer], [warmup, cosine_ann]  # [warmup, cosine_ann]
 
 
-N = 100000
-MAX_EPOCHS = 50
+N = 10000
+MAX_EPOCHS = 150
 WEIGHT_DECAY = 0.05
 LR = 1e-4
 WARMUP = int(0.1 * MAX_EPOCHS)
-N_RUNS = 2
+N_RUNS = 100
 
 
 def main():
-    folder = "/Users/miguelmartins/Projects/thunder-identifiable/src/thunder/embeddings/conch/"
+    folder = "/Users/miguelmartins/Projects/thunder-identifiable/src/thunder/embeddings/uni2h/"
     device = (
         "cuda"
         if torch.cuda.is_available()
@@ -108,13 +108,11 @@ def main():
         print(type(x), type(y), type(embeddings), type(emb[x]))
 
     train = emb["train"]
-    N_ = min(len(train), N)
-    print(N_, N)
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     for run_number in range(N_RUNS):
-        perm = torch.randperm(N_)  # draw once
+        perm = torch.randperm(N)  # draw once
         train_samples = torch.utils.data.Subset(train, perm)
-        # assert len(train_samples) == N
+        assert len(train_samples) == N
         train_dl = torch.utils.data.DataLoader(
             train_samples, shuffle=True, batch_size=32
         )
@@ -127,7 +125,7 @@ def main():
                 "id_acc": torchmetrics.Accuracy(
                     task="multiclass",
                     # W projects from d to |I|, so we can use this to get the number of "instances"
-                    num_classes=N_,
+                    num_classes=N,
                 )
             }
         )

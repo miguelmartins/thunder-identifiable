@@ -10,6 +10,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 
 from ..utils.constants import DatasetConstants
+from tqdm.auto import tqdm
 
 
 def get_data(dataset_name: str, base_data_folder: str) -> dict:
@@ -19,9 +20,9 @@ def get_data(dataset_name: str, base_data_folder: str) -> dict:
     :param base_data_folder: base path where data is stored.
     :return data dictionary.
     """
-    assert (
-        dataset_name in DatasetConstants.DATASETS.value
-    ), f"{dataset_name} is not within the list of available datasets: {DatasetConstants.DATASETS.value}."
+    assert dataset_name in DatasetConstants.DATASETS.value, (
+        f"{dataset_name} is not within the list of available datasets: {DatasetConstants.DATASETS.value}."
+    )
 
     # Reading json data file
     data_path = os.path.join(base_data_folder, "data_splits", f"{dataset_name}.json")
@@ -131,7 +132,7 @@ class PatchDataset(Dataset):
             self.labels = torch.Tensor(self.labels).to(torch.int64)
 
         if image_pre_loading:
-            for i in range(len(self.images)):
+            for i in tqdm(range(len(self.images))):
                 image, viz_image = self.image_loading(i)
                 self.images[i] = (image, viz_image)
 
@@ -162,9 +163,10 @@ class PatchDataset(Dataset):
 
         if self.embedding_pre_loading:
             key = str(index)
-            with h5py.File(self.embeddings_path, "r") as emb_h5, h5py.File(
-                self.labels_path, "r"
-            ) as lab_h5:
+            with (
+                h5py.File(self.embeddings_path, "r") as emb_h5,
+                h5py.File(self.labels_path, "r") as lab_h5,
+            ):
                 self.emb = emb_h5[key][()]
                 self.label = lab_h5[key][()]
 

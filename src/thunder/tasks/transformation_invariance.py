@@ -71,6 +71,25 @@ def transformation_invariance(
     res_folder: str,
 ) -> dict:
     """
+
+    Args:
+        cfg:
+        dataset_name:
+        model_name:
+        image_pre_loading:
+        adaptation_type:
+        device:
+        base_data_folder:
+        wandb_base_folder:
+        res_folder:
+
+    Returns:
+
+
+    Raises:
+        ValueError:
+    """
+    """
     Computing transformation invariance metrics for a given model and dataset.
 
     :param cfg: configuration file (hydra config).

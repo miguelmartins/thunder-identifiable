@@ -379,32 +379,26 @@ def run_benchmark(cfg: DictConfig, model_cls: Callable = None) -> None:
             dataset_name,
             model_name,
         )
-        if not os.path.exists(embeddings_folder):
-            logging.info(
-                f"No pre-computed embeddings found for the (dataset, model) pair "
-                f"({dataset_name}, {model_name}). Computing them."
-            )
-        else:
-            emb_info_str = (
-                "Computing augmentation embeddings for (dataset, model) pair IN TRAIN SET ONLY"
-                f"({dataset_name}, {model_name})."
-            )
+        emb_info_str = (
+            "Computing augmentation embeddings for (dataset, model) pair IN TRAIN SET ONLY"
+            f"({dataset_name}, {model_name})."
+        )
 
-            logging.info(emb_info_str)
-            pre_computing_augmentation_embeddings(
-                cfg,
-                embeddings_folder,
-                device,
-                dataset_name,
-                base_data_folder,
-                data_compatible_tasks,
-                adaptation_type,
-                base_embeddings_folder,
-                model_name,
-                image_pre_loading,
-                embedding_pre_loading,
-                model_cls,
-            )
+        logging.info(emb_info_str)
+        pre_computing_augmentation_embeddings(
+            cfg,
+            embeddings_folder,
+            device,
+            dataset_name,
+            base_data_folder,
+            data_compatible_tasks,
+            adaptation_type,
+            base_embeddings_folder,
+            model_name,
+            image_pre_loading,
+            embedding_pre_loading,
+            model_cls,
+        )
     if task_type == "transformation_invariance":
         transformation_invariance(
             cfg,

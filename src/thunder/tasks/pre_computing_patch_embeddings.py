@@ -9,6 +9,8 @@ from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 from transformers.models.vit.modeling_vit import ViTModel
 
+from thunder.utils.transforms_v2 import get_invariance_transforms_v2
+
 from ..models.pretrained_models import load_pretrained_model
 from ..utils.data import PatchDataset, get_data
 
@@ -44,7 +46,7 @@ def pre_computing_patch_embeddings(
     """
     # Loading data
     data = get_data(dataset_name, base_data_folder)
-
+    transforms = get_invariance_transforms_v2()
     # Loading pretrained model
     if model_cls is not None:
         pretrained_model = model_cls
@@ -70,7 +72,7 @@ def pre_computing_patch_embeddings(
             dataset_task_type,
             dataset_name,
             base_data_folder,
-            os.path.join(base_embeddings_folder, dataset_name, model_name, split),
+            os.path.join(base_membeddings_folder, dataset_name, model_name, split),
             image_pre_loading,
             embedding_pre_loading,
         )
@@ -114,9 +116,10 @@ def pre_computing_patch_embeddings_split(
     label_path = os.path.join(embeddings_folder, "labels.h5")
 
     # Open / create the files once.
-    with h5py.File(emb_path, "a", libver="latest") as emb_h5, h5py.File(
-        label_path, "a", libver="latest"
-    ) as lab_h5:
+    with (
+        h5py.File(emb_path, "a", libver="latest") as emb_h5,
+        h5py.File(label_path, "a", libver="latest") as lab_h5,
+    ):
         next_idx = max((int(k) for k in emb_h5.keys()), default=-1) + 1
 
         for batch in tqdm(dataloader, desc="Extracting patch embeddings"):
